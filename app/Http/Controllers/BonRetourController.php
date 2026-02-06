@@ -1,0 +1,127 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\BonLivraison;
+use App\Models\BonRetour;
+use App\Services\BonRetourService;
+use Illuminate\Http\Request;
+
+class BonRetourController extends Controller
+{
+    protected BonRetourService $bonRetourService;
+
+    public function __construct(BonRetourService $bonRetourService)
+    {
+        $this->bonRetourService = $bonRetourService;
+    }
+
+    /**
+     * Display all returns
+     */
+    public function index()
+    {
+        $bonsRetour = BonRetour::with('client', 'bonLivraison', 'lignes')->paginate(15);
+        return view('bon-retour.index', compact('bonsRetour'));
+    }
+
+    /**
+     * Show form to create a return
+     */
+    public function create()
+    {
+        $bonsLivraison = BonLivraison::with('client')
+            ->where('statut', '!=', 'cancelled')
+            ->get();
+        return view('bon-retour.create', compact('bonsLivraison'));
+    }
+
+    /**
+     * Store a new return
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'bon_livraison_id' => 'required|exists:bons_livraison,id',
+            'motif' => 'nullable|string',
+            'date' => 'required|date',
+            'lignes' => 'required|array',
+            'lignes.*.designation' => 'required|string',
+            'lignes.*.quantite' => 'required|numeric|min:0.01',
+        ]);
+
+        try {
+            $bonRetour = $this->bonRetourService->create($validated);
+            return redirect()->route('bon-retour.show', $bonRetour->id)
+                ->with('success', 'Bon de retour créé avec succès');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Display a return
+     */
+    public function show(BonRetour $bonRetour)
+    {
+        $bonRetour->load('client', 'bonLivraison', 'facture', 'lignes');
+        return view('bon-retour.show', compact('bonRetour'));
+    }
+
+    /**
+     * Show form to edit a return
+     */
+    public function edit(BonRetour $bonRetour)
+    {
+        $bonRetour->load('lignes');
+        $bonsLivraison = BonLivraison::with('client')->get();
+        return view('bon-retour.edit', compact('bonRetour', 'bonsLivraison'));
+    }
+
+    /**
+     * Update a return
+     */
+    public function update(Request $request, BonRetour $bonRetour)
+    {
+        $validated = $request->validate([
+            'bon_livraison_id' => 'required|exists:bons_livraison,id',
+            'motif' => 'nullable|string',
+            'date' => 'required|date',
+            'lignes' => 'required|array',
+            'lignes.*.designation' => 'required|string',
+            'lignes.*.quantite' => 'required|numeric|min:0.01',
+        ]);
+
+        try {
+            $this->bonRetourService->update($bonRetour, $validated);
+            return redirect()->route('bon-retour.show', $bonRetour->id)
+                ->with('success', 'Bon de retour mis à jour avec succès');
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete a return
+     */
+    public function destroy(BonRetour $bonRetour)
+    {
+        $bonRetour->delete();
+        return redirect()->route('bon-retour.index')
+            ->with('success', 'Bon de retour supprimé avec succès');
+    }
+
+    /**
+     * Get returns for a specific delivery (AJAX)
+     */
+    public function getForDelivery($deliveryId)
+    {
+        $bonLivraison = BonLivraison::findOrFail($deliveryId);
+        $returns = $this->bonRetourService->getRetursForDelivery($bonLivraison);
+
+        return response()->json([
+            'data' => $returns->load('lignes')->toArray(),
+            'total_returned' => $returns->sum(fn($r) => $r->getTotalReturnedQuantity()),
+        ]);
+    }
+}

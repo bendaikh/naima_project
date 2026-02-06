@@ -43,4 +43,53 @@ class BonRetour extends Model
     {
         return $this->hasMany(BonRetourLigne::class, 'bon_retour_id');
     }
+
+    /**
+     * Calculate total returned quantity
+     */
+    public function getTotalReturnedQuantity(): decimal|float
+    {
+        return $this->lignes()->sum('quantite');
+    }
+
+    /**
+     * Check if return is valid (not more than delivered)
+     */
+    public function isValid(): bool
+    {
+        $deliveredQty = $this->bonLivraison?->lignes()?->sum('quantite') ?? 0;
+        $currentReturnedQty = $this->getTotalReturnedQuantity();
+        $otherReturnsQty = BonRetour::where('bon_livraison_id', $this->bon_livraison_id)
+            ->where('id', '!=', $this->id)
+            ->with('lignes')
+            ->get()
+            ->sum(fn($bon) => $bon->getTotalReturnedQuantity());
+
+        return ($currentReturnedQty + $otherReturnsQty) <= $deliveredQty;
+    }
+
+    /**
+     * Prevent returning more than delivered quantity
+     */
+    public function canReturnQuantity(float $qty): bool
+    {
+        $deliveredQty = $this->bonLivraison?->lignes()?->sum('quantite') ?? 0;
+        $otherReturnsQty = BonRetour::where('bon_livraison_id', $this->bon_livraison_id)
+            ->where('id', '!=', $this->id)
+            ->with('lignes')
+            ->get()
+            ->sum(fn($bon) => $bon->getTotalReturnedQuantity());
+
+        return ($qty + $otherReturnsQty) <= $deliveredQty;
+    }
+
+    /**
+     * Link bon retour to facture if not already linked
+     */
+    public function linkToFacture(Facture $facture): void
+    {
+        if ($this->bonLivraison && $this->bonLivraison->facture_id === $facture->id) {
+            $this->update(['facture_id' => $facture->id]);
+        }
+    }
 }

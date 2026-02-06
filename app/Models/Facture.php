@@ -50,4 +50,52 @@ class Facture extends Model
     {
         return $this->hasMany(FactureLigne::class);
     }
+
+    public function bonsLivraison(): HasMany
+    {
+        return $this->hasMany(BonLivraison::class, 'facture_id');
+    }
+
+    public function avoirs(): HasMany
+    {
+        return $this->hasMany(Avoir::class, 'facture_id');
+    }
+
+    /**
+     * Calculate invoice quantity accounting for returns
+     * Formula: Sum of delivered quantities - Sum of returned quantities
+     */
+    public function calculateInvoiceQuantity(): decimal|float
+    {
+        $deliveredQty = $this->bonsLivraison()
+            ->with('lignes')
+            ->get()
+            ->sum(fn($bon) => $bon->lignes->sum('quantite'));
+
+        $returnedQty = BonRetour::where('facture_id', $this->id)
+            ->with('lignes')
+            ->get()
+            ->sum(fn($bon) => $bon->lignes->sum('quantite'));
+
+        return $deliveredQty - $returnedQty;
+    }
+
+    /**
+     * Check if invoice is paid
+     */
+    public function isPaid(): bool
+    {
+        return $this->statut === 'payee';
+    }
+
+    /**
+     * Mark invoice as paid
+     */
+    public function markAsPaid(float $amount): void
+    {
+        $this->update([
+            'montant_paye' => $amount,
+            'statut' => 'payee',
+        ]);
+    }
 }

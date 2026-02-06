@@ -26,28 +26,42 @@ class FactureController extends Controller
         $clients = Client::orderBy('nom_raison_sociale')->get();
         $devisId = $request->get('devis_id');
         $devis = $devisId ? Devis::with('client', 'lignes')->find($devisId) : null;
-        return view('factures.create', ['facture' => new Facture, 'clients' => $clients, 'devis' => $devis]);
+        return view('factures.create', [
+            'facture' => new Facture,
+            'clients' => $clients,
+            'devis' => $devis,
+            'compteTypes' => ['client' => 'Client', 'fournisseur' => 'Fournisseur'],
+            'facturationTypes' => ['facture' => 'Facture', 'facture_simplifiee' => 'Facture simplifiée', 'devis' => 'Devis'],
+            'categories' => ['electronique' => 'Électronique', 'electromenager' => 'Électroménager', 'informatique' => 'Informatique'],
+        ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
-            'devis_id' => 'nullable|exists:devis,id',
-            'date' => 'required|date',
-            'date_echeance' => 'nullable|date',
-            'tva' => 'nullable|numeric|min:0|max:100',
+            'compte_type' => 'required|in:client,fournisseur',
+            'type_facturation' => 'required|in:facture,facture_simplifiee',
+            'date_emission' => 'required|date',
+            'date_echeance' => 'required|date',
+            'categorie' => 'required|string',
+            'modele' => 'nullable|string',
+            'numero_facture' => 'nullable|string',
+            'description' => 'nullable|string',
         ]);
-        $params = ParametresEntreprise::get();
-        $validated['numero'] = $params->prefixe_facture . str_pad((string) $params->prochain_numero_facture, 4, '0', STR_PAD_LEFT);
-        $validated['tva'] = $validated['tva'] ?? $params->tva_par_defaut;
-        $validated['total_ht'] = 0;
-        $validated['total_ttc'] = 0;
-        $validated['montant_paye'] = 0;
-        $validated['statut'] = 'non_payee';
-        $facture = Facture::create($validated);
-        $params->increment('prochain_numero_facture');
-        return redirect()->route('factures.show', $facture)->with('success', 'Facture créée.');
+        
+        $facture = Facture::create([
+            'client_id' => $validated['client_id'],
+            'date' => $validated['date_emission'],
+            'date_echeance' => $validated['date_echeance'],
+            'numero' => $validated['numero_facture'] ?? 'FACT-' . time(),
+            'statut' => 'non_payee',
+            'total_ht' => 0,
+            'total_ttc' => 0,
+            'montant_paye' => 0,
+        ]);
+        
+        return redirect()->route('factures.show', $facture)->with('success', 'Facture créée avec succès.');
     }
 
     public function show(Facture $facture): View
