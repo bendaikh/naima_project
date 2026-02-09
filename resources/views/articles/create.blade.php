@@ -3,257 +3,171 @@
 @section('title', 'Créer un article')
 
 @section('content')
-<div class="max-w-4xl mx-auto">
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-slate-800">Créer un article</h1>
-    </div>
-
-    @if ($errors->any())
-        <div class="rounded-lg bg-red-50 p-4 mb-6 text-red-700">
-            <p class="font-semibold mb-2">Erreurs détectées:</p>
-            <ul class="list-inside list-disc">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form method="POST" action="{{ route('articles.store') }}" enctype="multipart/form-data" id="articleForm" class="space-y-6">
+<div class="max-w-2xl space-y-6">
+    <h1 class="text-2xl font-semibold text-slate-800">Créer un article</h1>
+    
+    <form method="POST" action="{{ route('articles.store') }}" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm space-y-4">
         @csrf
 
-        <!-- Tab Navigation -->
-        <div class="flex gap-2 border-b border-slate-200">
-            <button type="button" class="tab-button active px-4 py-3 text-sm font-medium text-slate-700 border-b-2 border-blue-600" data-tab="details">
-                Détails
-            </button>
-            <button type="button" class="tab-button px-4 py-3 text-sm font-medium text-slate-700 border-b-2 border-transparent hover:border-slate-300" data-tab="tarifs">
-                Tarifs
-            </button>
-            <button type="button" class="tab-button px-4 py-3 text-sm font-medium text-slate-700 border-b-2 border-transparent hover:border-slate-300" data-tab="medias">
-                Médias
-            </button>
-            <button type="button" class="tab-button px-4 py-3 text-sm font-medium text-slate-700 border-b-2 border-transparent hover:border-slate-300" data-tab="entrepot">
-                Détails de l'entrepôt
-            </button>
+        <div>
+            <label for="nom" class="block text-sm font-medium text-slate-700">Nom</label>
+            <input type="text" name="nom" id="nom" value="{{ old('nom') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            @error('nom') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
-        <!-- Tab Content -->
-        <div class="rounded-lg border border-slate-200 bg-white p-6 shadow">
+        <div>
+            <label for="categorie" class="block text-sm font-medium text-slate-700">Catégorie *</label>
+            <input type="text" name="categorie" id="categorie" value="{{ old('categorie') }}" required class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            @error('categorie') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
 
-            <!-- Détails Tab -->
-            <div id="tab-details" class="tab-content space-y-4">
-                <!-- Nom -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Nom *</label>
-                    <input type="text" name="nom" value="{{ old('nom') }}" required class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('nom') border-red-500 @enderror" placeholder="Nom de l'article" />
-                    @error('nom') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                </div>
+        <div>
+            <label for="description" class="block text-sm font-medium text-slate-700">Description</label>
+            <textarea name="description" id="description" rows="3" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">{{ old('description') }}</textarea>
+            @error('description') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
 
-                <!-- UGS & Generate Button -->
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700">UGS *</label>
-                        <input type="text" name="ugs" value="{{ old('ugs') }}" required class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('ugs') border-red-500 @enderror" placeholder="Code UGS" />
-                        @error('ugs') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                    <div class="flex items-end">
-                        <button type="button" id="generateUgs" class="w-full rounded-lg bg-blue-600 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-700">Générer</button>
-                    </div>
-                </div>
-
-                <!-- Impôt -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Impôt *</label>
-                    <select name="impot" required class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('impot') border-red-500 @enderror">
-                        <option value="">Please Select</option>
-                        <option value="5" {{ old('impot') == '5' ? 'selected' : '' }}>5%</option>
-                        <option value="10" {{ old('impot') == '10' ? 'selected' : '' }}>10%</option>
-                        <option value="20" {{ old('impot') == '20' ? 'selected' : '' }}>20%</option>
-                    </select>
-                    @error('impot') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                </div>
-
-                <!-- Catégorie -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Catégorie *</label>
-                    <div class="flex gap-2">
-                        <select name="categorie" required class="mt-1 flex-1 rounded-lg border border-slate-300 px-3 py-2 @error('categorie') border-red-500 @enderror">
-                            <option value="">Rail Magnetique</option>
-                            <option value="electronique" {{ old('categorie') == 'electronique' ? 'selected' : '' }}>Électronique</option>
-                            <option value="materiel" {{ old('categorie') == 'materiel' ? 'selected' : '' }}>Matériel</option>
-                            <option value="logiciel" {{ old('categorie') == 'logiciel' ? 'selected' : '' }}>Logiciel</option>
-                            <option value="service" {{ old('categorie') == 'service' ? 'selected' : '' }}>Service</option>
-                        </select>
-                        <button type="button" class="mt-1 rounded-lg bg-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-300">+</button>
-                    </div>
-                    <p class="mt-1 text-xs text-slate-500">Veuillez ajouter une catégorie constante. <a href="#" class="text-blue-600 hover:underline">Ajouter une catégorie</a></p>
-                    @error('categorie') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                </div>
-
-                <!-- Description -->
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Description</label>
-                    <textarea name="description" rows="4" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('description') border-red-500 @enderror" placeholder="Description de l'article"></textarea>
-                    @error('description') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                </div>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="prix_achat" class="block text-sm font-medium text-slate-700">Prix d'achat *</label>
+                <input type="number" name="prix_achat" id="prix_achat" value="{{ old('prix_achat') }}" required step="0.01" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('prix_achat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
-            <!-- Tarifs Tab -->
-            <div id="tab-tarifs" class="tab-content space-y-4 hidden">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Prix de vente (DH)</label>
-                        <input type="number" step="0.01" name="prix_vente" value="{{ old('prix_vente') }}" required class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('prix_vente') border-red-500 @enderror" />
-                        @error('prix_vente') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Prix d'achat (DH)</label>
-                        <input type="number" step="0.01" name="prix_achat" value="{{ old('prix_achat') }}" required class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('prix_achat') border-red-500 @enderror" />
-                        @error('prix_achat') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Compte revenu</label>
-                        <input type="text" name="compte_revenu" value="{{ old('compte_revenu') }}" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('compte_revenu') border-red-500 @enderror" placeholder="ex: 701000" />
-                        @error('compte_revenu') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Compte dépense</label>
-                        <input type="text" name="compte_depense" value="{{ old('compte_depense') }}" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('compte_depense') border-red-500 @enderror" placeholder="ex: 601000" />
-                        @error('compte_depense') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Unité</label>
-                        <select name="unite" required class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('unite') border-red-500 @enderror">
-                            <option value="">Sélectionner...</option>
-                            <option value="dh" {{ old('unite') == 'dh' ? 'selected' : '' }}>DH</option>
-                            <option value="piece" {{ old('unite') == 'piece' ? 'selected' : '' }}>Pièce</option>
-                            <option value="kg" {{ old('unite') == 'kg' ? 'selected' : '' }}>KG</option>
-                            <option value="m" {{ old('unite') == 'm' ? 'selected' : '' }}>M</option>
-                        </select>
-                        @error('unite') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700">Quantité</label>
-                        <input type="number" step="0.01" name="quantite" value="{{ old('quantite') }}" required class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('quantite') border-red-500 @enderror" />
-                        @error('quantite') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-            </div>
-
-            <!-- Médias Tab -->
-            <div id="tab-medias" class="tab-content space-y-4 hidden">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-2">Image</label>
-                    <div class="mt-1 flex items-center gap-4">
-                        <div class="flex-1">
-                            <input type="file" name="image_path" id="imageInput" accept="image/*" class="block w-full text-sm text-slate-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
-                            @error('image_path') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-                    </div>
-                    <div id="imagePreview" class="mt-4"></div>
-                </div>
-            </div>
-
-            <!-- Entrepôt Tab -->
-            <div id="tab-entrepot" class="tab-content space-y-4 hidden">
-                <div>
-                    <label class="block text-sm font-medium text-slate-700">Entrepôt</label>
-                    <select name="entrepot" class="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 @error('entrepot') border-red-500 @enderror">
-                        <option value="">Sélectionner un entrepôt...</option>
-                        <option value="principal" {{ old('entrepot') == 'principal' ? 'selected' : '' }}>Entrepôt Principal</option>
-                        <option value="secondaire" {{ old('entrepot') == 'secondaire' ? 'selected' : '' }}>Entrepôt Secondaire</option>
-                        <option value="zone_a" {{ old('entrepot') == 'zone_a' ? 'selected' : '' }}>Zone A</option>
-                        <option value="zone_b" {{ old('entrepot') == 'zone_b' ? 'selected' : '' }}>Zone B</option>
-                    </select>
-                    @error('entrepot') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                </div>
+            <div>
+                <label for="prix_vente" class="block text-sm font-medium text-slate-700">Prix de vente *</label>
+                <input type="number" name="prix_vente" id="prix_vente" value="{{ old('prix_vente') }}" required step="0.01" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('prix_vente') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
 
-        <!-- Navigation Buttons -->
-        <div class="flex justify-between">
-            <a href="{{ route('articles.index') }}" class="rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Annuler</a>
-            <div class="flex gap-2">
-                <button type="button" id="prevBtn" class="rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 hidden">Précédent</button>
-                <button type="button" id="nextBtn" class="rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700">Suivant</button>
-                <button type="submit" id="submitBtn" class="rounded-lg bg-green-600 px-6 py-2 text-sm font-semibold text-white hover:bg-green-700 hidden">Créer</button>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="quantite" class="block text-sm font-medium text-slate-700">Quantité initiale *</label>
+                <input type="number" name="quantite" id="quantite" value="{{ old('quantite') }}" required step="1" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('quantite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
+
+            <div>
+                <label for="unite" class="block text-sm font-medium text-slate-700">Unité *</label>
+                <select name="unite" id="unite" required class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    <option value="">-- Sélectionner une unité --</option>
+                    <option value="pcs" {{ old('unite', 'pcs') === 'pcs' ? 'selected' : '' }}>Pièce (pcs)</option>
+                    <option value="kg" {{ old('unite') === 'kg' ? 'selected' : '' }}>Kilogramme (kg)</option>
+                    <option value="g" {{ old('unite') === 'g' ? 'selected' : '' }}>Gramme (g)</option>
+                    <option value="litre" {{ old('unite') === 'litre' ? 'selected' : '' }}>Litre (l)</option>
+                    <option value="ml" {{ old('unite') === 'ml' ? 'selected' : '' }}>Millilitre (ml)</option>
+                    <option value="m" {{ old('unite') === 'm' ? 'selected' : '' }}>Mètre (m)</option>
+                    <option value="cm" {{ old('unite') === 'cm' ? 'selected' : '' }}>Centimètre (cm)</option>
+                    <option value="m2" {{ old('unite') === 'm2' ? 'selected' : '' }}>Mètre carré (m²)</option>
+                    <option value="m3" {{ old('unite') === 'm3' ? 'selected' : '' }}>Mètre cube (m³)</option>
+                    <option value="box" {{ old('unite') === 'box' ? 'selected' : '' }}>Boîte (box)</option>
+                    <option value="lot" {{ old('unite') === 'lot' ? 'selected' : '' }}>Lot</option>
+                    <option value="hr" {{ old('unite') === 'hr' ? 'selected' : '' }}>Heure (hr)</option>
+                </select>
+                @error('unite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <!-- Stock Management Section -->
+        <div class="rounded-lg bg-blue-50 border border-blue-200 p-4 space-y-4">
+            <h3 class="font-medium text-blue-900">Gestion du stock</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="quantite_stock" class="block text-sm font-medium text-slate-700">Stock initial *</label>
+                    <input type="number" name="quantite_stock" id="quantite_stock" value="{{ old('quantite_stock') }}" step="1" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    @error('quantite_stock') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <p class="text-xs text-slate-600 mt-1">La quantité initiale que vous avez en stock</p>
+                </div>
+
+                <div class="flex flex-col justify-end">
+                    <button type="button" onclick="syncStock()" class="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+                        Synchroniser avec la quantité
+                    </button>
+                    <p class="text-xs text-slate-600 mt-2">Copie la valeur de "Quantité initiale" ci-dessus</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded border border-blue-200 p-3">
+                <p class="text-xs text-slate-600">
+                    <strong>Comment ça marche:</strong> Le stock initial définit la quantité actuelle disponible. Lors des livraisons et retours, ce stock sera automatiquement ajusté.
+                </p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="ugs" class="block text-sm font-medium text-slate-700">UGS</label>
+                <input type="text" name="ugs" id="ugs" value="{{ old('ugs') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('ugs') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label for="numero_facture" class="block text-sm font-medium text-slate-700">Numéro de facture</label>
+                <input type="text" name="numero_facture" id="numero_facture" value="{{ old('numero_facture') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('numero_facture') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="compte_revenu" class="block text-sm font-medium text-slate-700">Compte revenu</label>
+                <input type="text" name="compte_revenu" id="compte_revenu" value="{{ old('compte_revenu') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('compte_revenu') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label for="compte_depense" class="block text-sm font-medium text-slate-700">Compte dépense</label>
+                <input type="text" name="compte_depense" id="compte_depense" value="{{ old('compte_depense') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('compte_depense') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="entrepot" class="block text-sm font-medium text-slate-700">Entrepôt</label>
+                <input type="text" name="entrepot" id="entrepot" value="{{ old('entrepot') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('entrepot') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label for="impot" class="block text-sm font-medium text-slate-700">Impôt (%)</label>
+                <input type="number" name="impot" id="impot" value="{{ old('impot') }}" step="0.01" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('impot') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div>
+            <label for="image_path" class="block text-sm font-medium text-slate-700">Chemin de l'image</label>
+            <input type="text" name="image_path" id="image_path" value="{{ old('image_path') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            @error('image_path') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="flex gap-3 pt-4">
+            <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Créer l'article</button>
+            <a href="{{ route('articles.index') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Annuler</a>
         </div>
     </form>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const tabs = ['details', 'tarifs', 'medias', 'entrepot'];
-    let currentTab = 0;
-
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    const imageInput = document.getElementById('imageInput');
-    const imagePreview = document.getElementById('imagePreview');
-
-    function showTab(index) {
-        currentTab = Math.max(0, Math.min(index, tabs.length - 1));
-
-        tabButtons.forEach((btn, i) => {
-            btn.classList.toggle('active', i === currentTab);
-            btn.classList.toggle('border-blue-600', i === currentTab);
-            btn.classList.toggle('border-transparent', i !== currentTab);
-            btn.classList.toggle('text-blue-600', i === currentTab);
-            btn.classList.toggle('text-slate-700', i !== currentTab);
-        });
-
-        tabContents.forEach((content, i) => {
-            content.classList.toggle('hidden', i !== currentTab);
-        });
-
-        prevBtn.classList.toggle('hidden', currentTab === 0);
-        nextBtn.classList.toggle('hidden', currentTab === tabs.length - 1);
-        submitBtn.classList.toggle('hidden', currentTab !== tabs.length - 1);
+function syncStock() {
+    const quantite = document.getElementById('quantite').value;
+    const quantiteStock = document.getElementById('quantite_stock');
+    
+    if (quantite) {
+        quantiteStock.value = quantite;
+    } else {
+        alert('Veuillez d\'abord entrer la quantité initiale');
     }
+}
 
-    tabButtons.forEach((btn, index) => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            showTab(index);
-        });
-    });
-
-    nextBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        showTab(currentTab + 1);
-    });
-
-    prevBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        showTab(currentTab - 1);
-    });
-
-    imageInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                imagePreview.innerHTML = `<img src="${event.target.result}" class="h-32 w-32 rounded-lg object-cover border border-slate-200" />`;
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    showTab(0);
+// Auto-sync stock when quantite changes
+document.getElementById('quantite').addEventListener('change', function() {
+    if (document.getElementById('quantite_stock').value === '') {
+        document.getElementById('quantite_stock').value = this.value;
+    }
 });
 </script>
 @endsection

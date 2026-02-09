@@ -9,7 +9,12 @@ class BonRetourLigne extends Model
 {
     protected $table = 'bon_retour_lignes';
 
-    protected $fillable = ['bon_retour_id', 'designation', 'quantite'];
+    protected $fillable = [
+        'bon_retour_id',
+        'article_id',
+        'designation',
+        'quantite'
+    ];
 
     protected function casts(): array
     {
@@ -19,5 +24,10 @@ class BonRetourLigne extends Model
     public function bonRetour(): BelongsTo
     {
         return $this->belongsTo(BonRetour::class, 'bon_retour_id');
+    }
+
+    public function article(): BelongsTo
+    {
+        return $this->belongsTo(Article::class, 'article_id');
     }
 }

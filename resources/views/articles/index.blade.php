@@ -23,40 +23,40 @@
     @else
         <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow">
             <table class="w-full">
-                <thead class="bg-slate-50 border-b border-slate-200">
+                <thead class="border-b border-slate-200 bg-slate-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">NON</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">IMAGE</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">NOM</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">SKU</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">CATÉGORIE</th>
-                        <th class="px-6 py-3 text-right text-sm font-semibold text-slate-600">PRIX VENTE</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">ACTIONS</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Nom</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Description</th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-slate-600">Prix de vente</th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-slate-600">Stock</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
                     @foreach($articles as $article)
                         <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $loop->iteration }}</td>
-                            <td class="px-6 py-4 text-sm">
-                                @if($article->image_path)
-                                    <img src="{{ asset('storage/' . $article->image_path) }}" alt="{{ $article->nom }}" class="h-10 w-10 rounded object-cover">
-                                @else
-                                    <div class="h-10 w-10 rounded bg-slate-200 flex items-center justify-center">
-                                        <svg class="h-6 w-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                                    </div>
-                                @endif
-                            </td>
                             <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $article->nom }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">{{ $article->ugs }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">{{ ucfirst($article->categorie) }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">{{ Str::limit($article->description, 50) }}</td>
                             <td class="px-6 py-4 text-right text-sm font-medium text-slate-900">{{ number_format($article->prix_vente, 2, ',', ' ') }} DH</td>
+                            <td class="px-6 py-4 text-right">
+                                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium
+                                    @if($article->quantite_stock > $article->quantite * 0.5)
+                                        bg-green-100 text-green-700
+                                    @elseif($article->quantite_stock > 0)
+                                        bg-yellow-100 text-yellow-700
+                                    @else
+                                        bg-red-100 text-red-700
+                                    @endif
+                                ">
+                                    {{ $article->quantite_stock }} {{ $article->unite }}
+                                </div>
+                            </td>
                             <td class="px-6 py-4 text-sm space-x-3">
-                                <a href="{{ route('articles.show', $article) }}" class="text-blue-600 hover:text-blue-700 font-medium">Voir</a>
-                                <a href="{{ route('articles.edit', $article) }}" class="text-amber-600 hover:text-amber-700 font-medium">Modifier</a>
+                                <a href="{{ route('articles.show', $article) }}" class="text-blue-600 hover:text-blue-700">Voir</a>
+                                <a href="{{ route('articles.edit', $article) }}" class="text-amber-600 hover:text-amber-700">Modifier</a>
                                 <form method="POST" action="{{ route('articles.destroy', $article) }}" class="inline">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-700 font-medium" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
+                                    <button type="submit" class="text-red-600 hover:text-red-700" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
                                 </form>
                             </td>
                         </tr>

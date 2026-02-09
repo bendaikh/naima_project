@@ -1,257 +1,162 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Modifier - Article')
+@section('title', 'Modifier un article')
 
 @section('content')
-<div class="space-y-6">
-    <h1 class="text-3xl font-bold text-slate-800">Modifier l'article</h1>
+<div class="max-w-2xl space-y-6">
+    <h1 class="text-2xl font-semibold text-slate-800">Modifier un article</h1>
+    
+    <form method="POST" action="{{ route('articles.update', $article) }}" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+        @csrf
+        @method('PUT')
 
-    @if ($errors->any())
-        <div class="rounded-lg bg-red-50 p-4">
-            <ul class="list-inside list-disc text-sm text-red-700">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div>
+            <label for="nom" class="block text-sm font-medium text-slate-700">Nom</label>
+            <input type="text" name="nom" id="nom" value="{{ old('nom', $article->nom) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            @error('nom') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
-    @endif
 
-    <!-- Tab Navigation -->
-    <div class="flex gap-2 border-b border-slate-200 bg-white rounded-t-lg overflow-x-auto">
-        <button type="button" id="tab-details" class="tab-button active px-6 py-3 text-sm font-semibold border-b-2 border-blue-600 text-blue-600 whitespace-nowrap">
-            Détails
-        </button>
-        <button type="button" id="tab-tarifs" class="tab-button px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-800 whitespace-nowrap">
-            Tarifs
-        </button>
-        <button type="button" id="tab-medias" class="tab-button px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-800 whitespace-nowrap">
-            Médias
-        </button>
-        <button type="button" id="tab-entrepot" class="tab-button px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-slate-600 hover:text-slate-800 whitespace-nowrap">
-            Détails de l'entrepôt
-        </button>
-    </div>
+        <div>
+            <label for="categorie" class="block text-sm font-medium text-slate-700">Catégorie *</label>
+            <input type="text" name="categorie" id="categorie" value="{{ old('categorie', $article->categorie) }}" required class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            @error('categorie') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
 
-    <!-- Form -->
-    <form method="POST" action="{{ route('articles.update', $article) }}" enctype="multipart/form-data" class="rounded-lg border border-slate-200 bg-white p-8 shadow">
-        @csrf @method('PUT')
+        <div>
+            <label for="description" class="block text-sm font-medium text-slate-700">Description</label>
+            <textarea name="description" id="description" rows="3" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">{{ old('description', $article->description) }}</textarea>
+            @error('description') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
 
-        <!-- DETAILS TAB -->
-        <div id="content-details" class="tab-content space-y-6">
-            <!-- Nom -->
+        <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Nom<span class="text-red-600">*</span></label>
-                <input type="text" name="nom" value="{{ old('nom', $article->nom) }}" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <label for="prix_achat" class="block text-sm font-medium text-slate-700">Prix d'achat *</label>
+                <input type="number" name="prix_achat" id="prix_achat" value="{{ old('prix_achat', $article->prix_achat) }}" required step="0.01" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('prix_achat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
-            <!-- UGS & Generate Button -->
-            <div class="grid grid-cols-3 gap-6">
-                <div class="col-span-2">
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">UGS<span class="text-red-600">*</span></label>
-                    <input type="text" name="ugs" value="{{ old('ugs', $article->ugs) }}" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-                <div class="flex items-end">
-                    <button type="button" id="generateUgs" class="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Générer</button>
-                </div>
+            <div>
+                <label for="prix_vente" class="block text-sm font-medium text-slate-700">Prix de vente *</label>
+                <input type="number" name="prix_vente" id="prix_vente" value="{{ old('prix_vente', $article->prix_vente) }}" required step="0.01" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('prix_vente') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="quantite" class="block text-sm font-medium text-slate-700">Quantité initiale *</label>
+                <input type="number" name="quantite" id="quantite" value="{{ old('quantite', $article->quantite) }}" required step="1" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('quantite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
-            <!-- Impôt -->
             <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Impôt<span class="text-red-600">*</span></label>
-                <select name="impot" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    <option value="">Please Select</option>
-                    <option value="5" {{ old('impot', $article->impot) == '5' ? 'selected' : '' }}>5%</option>
-                    <option value="10" {{ old('impot', $article->impot) == '10' ? 'selected' : '' }}>10%</option>
-                    <option value="20" {{ old('impot', $article->impot) == '20' ? 'selected' : '' }}>20%</option>
+                <label for="unite" class="block text-sm font-medium text-slate-700">Unité *</label>
+                <select name="unite" id="unite" required class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    <option value="">-- Sélectionner une unité --</option>
+                    <option value="pcs" {{ old('unite', $article->unite) === 'pcs' ? 'selected' : '' }}>Pièce (pcs)</option>
+                    <option value="kg" {{ old('unite', $article->unite) === 'kg' ? 'selected' : '' }}>Kilogramme (kg)</option>
+                    <option value="g" {{ old('unite', $article->unite) === 'g' ? 'selected' : '' }}>Gramme (g)</option>
+                    <option value="litre" {{ old('unite', $article->unite) === 'litre' ? 'selected' : '' }}>Litre (l)</option>
+                    <option value="ml" {{ old('unite', $article->unite) === 'ml' ? 'selected' : '' }}>Millilitre (ml)</option>
+                    <option value="m" {{ old('unite', $article->unite) === 'm' ? 'selected' : '' }}>Mètre (m)</option>
+                    <option value="cm" {{ old('unite', $article->unite) === 'cm' ? 'selected' : '' }}>Centimètre (cm)</option>
+                    <option value="m2" {{ old('unite', $article->unite) === 'm2' ? 'selected' : '' }}>Mètre carré (m²)</option>
+                    <option value="m3" {{ old('unite', $article->unite) === 'm3' ? 'selected' : '' }}>Mètre cube (m³)</option>
+                    <option value="box" {{ old('unite', $article->unite) === 'box' ? 'selected' : '' }}>Boîte (box)</option>
+                    <option value="lot" {{ old('unite', $article->unite) === 'lot' ? 'selected' : '' }}>Lot</option>
+                    <option value="hr" {{ old('unite', $article->unite) === 'hr' ? 'selected' : '' }}>Heure (hr)</option>
                 </select>
-            </div>
-
-            <!-- Catégorie -->
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Catégorie<span class="text-red-600">*</span></label>
-                <div class="flex gap-2">
-                    <select name="categorie" required class="flex-1 rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">Rail Magnetique</option>
-                        <option value="electronique" {{ old('categorie', $article->categorie) === 'electronique' ? 'selected' : '' }}>Électronique</option>
-                        <option value="materiel" {{ old('categorie', $article->categorie) === 'materiel' ? 'selected' : '' }}>Matériel</option>
-                        <option value="logiciel" {{ old('categorie', $article->categorie) === 'logiciel' ? 'selected' : '' }}>Logiciel</option>
-                        <option value="service" {{ old('categorie', $article->categorie) === 'service' ? 'selected' : '' }}>Service</option>
-                    </select>
-                    <button type="button" class="rounded-lg bg-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-300">+</button>
-                </div>
-                <p class="mt-1 text-xs text-slate-500">Veuillez ajouter une catégorie constante. <a href="#" class="text-blue-600 hover:underline">Ajouter une catégorie</a></p>
-            </div>
-
-            <!-- Description -->
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Description</label>
-                <textarea name="description" rows="4" class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">{{ old('description', $article->description) }}</textarea>
+                @error('unite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
         </div>
 
-        <!-- TARIFS TAB -->
-        <div id="content-tarifs" class="tab-content hidden space-y-6">
-            <div class="grid grid-cols-2 gap-6">
+        <!-- Stock Management Section -->
+        <div class="rounded-lg bg-blue-50 border border-blue-200 p-4 space-y-4">
+            <h3 class="font-medium text-blue-900">Gestion du stock</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Prix de vente<span class="text-red-600">*</span></label>
-                    <input type="number" step="0.01" name="prix_vente" value="{{ $article->prix_vente }}" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <label for="quantite_stock" class="block text-sm font-medium text-slate-700">Stock actuel</label>
+                    <div class="flex gap-2">
+                        <input type="number" name="quantite_stock" id="quantite_stock" value="{{ old('quantite_stock', $article->quantite_stock) }}" step="1" min="0" class="mt-1 flex-1 rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    </div>
+                    @error('quantite_stock') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <p class="text-xs text-slate-600 mt-1">Ajusté automatiquement lors des livraisons/retours</p>
                 </div>
 
                 <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Prix d'achat<span class="text-red-600">*</span></label>
-                    <input type="number" step="0.01" name="prix_achat" value="{{ $article->prix_achat }}" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Compte de revenu</label>
-                    <select name="compte_revenu" class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">Select Account</option>
-                        <option value="4111" {{ $article->compte_revenu === '4111' ? 'selected' : '' }}>4111 - Ventes</option>
-                        <option value="4112" {{ $article->compte_revenu === '4112' ? 'selected' : '' }}>4112 - Services</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Compte de dépenses</label>
-                    <select name="compte_depense" class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="">Select Account</option>
-                        <option value="6011" {{ $article->compte_depense === '6011' ? 'selected' : '' }}>6011 - Achats</option>
-                        <option value="6012" {{ $article->compte_depense === '6012' ? 'selected' : '' }}>6012 - Services</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Unité<span class="text-red-600">*</span></label>
-                    <select name="unite" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                        <option value="dh" {{ $article->unite === 'dh' ? 'selected' : '' }}>DH</option>
-                        <option value="piece" {{ $article->unite === 'piece' ? 'selected' : '' }}>Pièce</option>
-                        <option value="kg" {{ $article->unite === 'kg' ? 'selected' : '' }}>Kg</option>
-                        <option value="m" {{ $article->unite === 'm' ? 'selected' : '' }}>Mètre</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-semibold text-slate-700 mb-2">Quantité<span class="text-red-600">*</span></label>
-                    <input type="number" step="0.01" name="quantite" value="{{ $article->quantite }}" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                </div>
-            </div>
-        </div>
-
-        <!-- MEDIAS TAB -->
-        <div id="content-medias" class="tab-content hidden space-y-6">
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-4">Image</label>
-                <div class="flex items-center gap-4">
-                    <label class="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 cursor-pointer hover:bg-slate-50">
-                        <span class="text-sm font-medium text-slate-700">Choisir un fichier</span>
-                        <input type="file" name="image_path" accept="image/*" class="hidden">
-                    </label>
-                    <span class="text-sm text-slate-500" id="file-name">{{ $article->image_path ? 'Image actuelle' : 'Aucun fichier' }}</span>
-                </div>
-                <div class="mt-6">
-                    <div id="image-preview" class="inline-block rounded-lg border-2 border-dashed border-slate-300 p-6 bg-slate-50">
-                        @if($article->image_path)
-                            <img src="{{ asset('storage/' . $article->image_path) }}" class="h-32 w-32 rounded object-cover">
-                        @else
-                            <svg class="h-16 w-16 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                        @endif
+                    <h4 class="text-sm font-medium text-slate-700 mb-2">État du stock</h4>
+                    <div class="bg-white rounded-lg p-3 border border-slate-200">
+                        <p class="text-2xl font-bold {{ $article->quantite_stock > $article->quantite * 0.5 ? 'text-green-600' : ($article->quantite_stock > 0 ? 'text-yellow-600' : 'text-red-600') }}">
+                            {{ $article->quantite_stock }}
+                        </p>
+                        <p class="text-xs text-slate-600 mt-1">/ {{ $article->quantite }} initial</p>
+                        <div class="w-full bg-slate-200 rounded-full h-2 mt-2">
+                            <div class="bg-blue-600 h-2 rounded-full" style="width: {{ min(100, ($article->quantite_stock / max($article->quantite, 1)) * 100) }}%"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- ENTREPOT TAB -->
-        <div id="content-entrepot" class="tab-content hidden space-y-6">
-            <div>
-                <label class="block text-sm font-semibold text-slate-700 mb-2">Entrepôt</label>
-                <select name="entrepot" class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-                    <option value="">Sélectionner un entrepôt...</option>
-                    <option value="principal" {{ old('entrepot', $article->entrepot) === 'principal' ? 'selected' : '' }}>Entrepôt Principal</option>
-                    <option value="secondaire" {{ old('entrepot', $article->entrepot) === 'secondaire' ? 'selected' : '' }}>Entrepôt Secondaire</option>
-                    <option value="zone_a" {{ old('entrepot', $article->entrepot) === 'zone_a' ? 'selected' : '' }}>Zone A</option>
-                    <option value="zone_b" {{ old('entrepot', $article->entrepot) === 'zone_b' ? 'selected' : '' }}>Zone B</option>
-                </select>
+            <div class="bg-white rounded border border-blue-200 p-3">
+                <p class="text-xs text-slate-600">
+                    <strong>Notes:</strong> Ce stock est géré automatiquement. Ne le modifier que si vous devez corriger une erreur ou faire un ajustement manuel d'inventaire.
+                </p>
             </div>
         </div>
 
-        <!-- Form Actions -->
-        <div class="mt-8 flex gap-4 border-t border-slate-200 pt-6">
-            <button type="button" id="btn-previous" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50" style="display: none;">
-                <span>‹</span>
-                <span>Précédent</span>
-            </button>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="ugs" class="block text-sm font-medium text-slate-700">UGS</label>
+                <input type="text" name="ugs" id="ugs" value="{{ old('ugs', $article->ugs) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('ugs') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
 
-            <button type="button" id="btn-next" class="ml-auto inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-                <span>Suivant</span>
-                <span>›</span>
-            </button>
+            <div>
+                <label for="numero_facture" class="block text-sm font-medium text-slate-700">Numéro de facture</label>
+                <input type="text" name="numero_facture" id="numero_facture" value="{{ old('numero_facture', $article->numero_facture) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('numero_facture') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
 
-            <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-6 py-2 text-sm font-semibold text-white hover:bg-blue-700" style="display: none;" id="btn-submit">
-                <span>Mettre à jour</span>
-            </button>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="compte_revenu" class="block text-sm font-medium text-slate-700">Compte revenu</label>
+                <input type="text" name="compte_revenu" id="compte_revenu" value="{{ old('compte_revenu', $article->compte_revenu) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('compte_revenu') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
 
-            <a href="{{ route('articles.show', $article) }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Annuler</a>
+            <div>
+                <label for="compte_depense" class="block text-sm font-medium text-slate-700">Compte dépense</label>
+                <input type="text" name="compte_depense" id="compte_depense" value="{{ old('compte_depense', $article->compte_depense) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('compte_depense') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label for="entrepot" class="block text-sm font-medium text-slate-700">Entrepôt</label>
+                <input type="text" name="entrepot" id="entrepot" value="{{ old('entrepot', $article->entrepot) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('entrepot') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+
+            <div>
+                <label for="impot" class="block text-sm font-medium text-slate-700">Impôt (%)</label>
+                <input type="number" name="impot" id="impot" value="{{ old('impot', $article->impot) }}" step="0.01" min="0" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                @error('impot') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+        </div>
+
+        <div>
+            <label for="image_path" class="block text-sm font-medium text-slate-700">Chemin de l'image</label>
+            <input type="text" name="image_path" id="image_path" value="{{ old('image_path', $article->image_path) }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            @error('image_path') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+        </div>
+
+        <div class="flex gap-3 pt-4">
+            <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Mettre à jour</button>
+            <a href="{{ route('articles.show', $article) }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50">Annuler</a>
         </div>
     </form>
 </div>
-
-<script>
-const tabs = ['details', 'tarifs', 'medias', 'entrepot'];
-let currentTab = 0;
-
-// Tab switching
-document.querySelectorAll('.tab-button').forEach((btn, idx) => {
-    btn.addEventListener('click', () => goToTab(idx));
-});
-
-document.getElementById('btn-next').addEventListener('click', () => {
-    if (currentTab < tabs.length - 1) goToTab(currentTab + 1);
-});
-
-document.getElementById('btn-previous').addEventListener('click', () => {
-    if (currentTab > 0) goToTab(currentTab - 1);
-});
-
-function goToTab(idx) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    document.querySelectorAll('.tab-button').forEach(el => {
-        el.classList.remove('border-blue-600', 'text-blue-600');
-        el.classList.add('border-transparent', 'text-slate-600');
-    });
-
-    // Show current tab
-    currentTab = idx;
-    document.getElementById(`content-${tabs[idx]}`).classList.remove('hidden');
-    document.getElementById(`tab-${tabs[idx]}`).classList.add('border-blue-600', 'text-blue-600');
-    document.getElementById(`tab-${tabs[idx]}`).classList.remove('border-transparent', 'text-slate-600');
-
-    // Update button visibility
-    document.getElementById('btn-previous').style.display = currentTab === 0 ? 'none' : 'inline-flex';
-    document.getElementById('btn-next').style.display = currentTab === tabs.length - 1 ? 'none' : 'inline-flex';
-    document.getElementById('btn-submit').style.display = currentTab === tabs.length - 1 ? 'inline-flex' : 'none';
-}
-
-// File input handler
-document.querySelector('input[name="image_path"]').addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-        document.getElementById('file-name').textContent = file.name;
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            document.getElementById('image-preview').innerHTML = `<img src="${event.target.result}" class="h-32 w-32 rounded object-cover">`;
-        };
-        reader.readAsDataURL(file);
-    }
-});
-
-// Initialize
-goToTab(0);
-</script>
 @endsection

@@ -10,6 +10,7 @@
             <p class="text-sm text-slate-600 mt-1">Créé le {{ $avoir->created_at->format('d/m/Y') }}</p>
         </div>
         <div class="flex gap-2">
+            <a href="{{ route('avoir.index') }}" class="rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">← Retour</a>
             @if($avoir->statut === 'brouillon')
                 <form method="POST" action="{{ route('avoir.emit', $avoir->id) }}" class="inline">
                     @csrf
@@ -40,7 +41,7 @@
     <div class="grid grid-cols-1 gap-6 md:grid-cols-4">
         <div class="rounded-lg border border-slate-200 bg-white p-6 shadow">
             <p class="text-sm font-medium text-slate-600">Client</p>
-            <p class="text-lg font-semibold text-slate-800 mt-2">{{ $avoir->client->name }}</p>
+            <p class="text-lg font-semibold text-slate-800 mt-2">{{ $avoir->client->nom_raison_sociale }}</p>
         </div>
 
         <div class="rounded-lg border border-slate-200 bg-white p-6 shadow">

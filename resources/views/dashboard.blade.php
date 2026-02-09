@@ -37,7 +37,7 @@
                     <div class="flex items-start justify-between mb-6">
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-slate-600 uppercase tracking-wide">Ventes Totales</p>
-                            <p class="mt-3 text-4xl font-bold text-slate-900">{{ number_format($chiffreAffaires, 0, ',', ' ') }} €</p>
+                            <p class="mt-3 text-4xl font-bold text-slate-900">{{ number_format($chiffreAffaires, 0, ',', ' ') }} MAD</p>
                             <div class="mt-3 flex items-center gap-2">
                                 <span class="inline-flex items-center rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-bold text-emerald-700">
                                     <svg class="h-3 w-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
@@ -67,7 +67,7 @@
                     <div class="flex items-start justify-between mb-6">
                         <div class="flex-1">
                             <p class="text-sm font-semibold text-slate-600 uppercase tracking-wide">Factures Impayées</p>
-                            <p class="mt-3 text-4xl font-bold text-slate-900">{{ number_format($facturesImpayees, 0, ',', ' ') }} €</p>
+                            <p class="mt-3 text-4xl font-bold text-slate-900">{{ number_format($facturesImpayees, 0, ',', ' ') }} MAD</p>
                             <div class="mt-3">
                                 <span class="inline-flex items-center rounded-full bg-orange-100 px-3 py-1.5 text-xs font-bold text-orange-700">
                                     <span class="h-2 w-2 rounded-full bg-orange-500 mr-2 animate-pulse"></span>
@@ -141,7 +141,7 @@
                                 <div class="w-full rounded-t-2xl bg-gradient-to-t from-blue-500 to-indigo-400 shadow-lg transition-all duration-300 group-hover:from-blue-600 group-hover:to-indigo-500 group-hover:shadow-xl" style="height: {{ $h }}%; min-height: 12px;"></div>
                                 <div class="absolute -top-8 left-1/2 -translate-x-1/2 hidden group-hover:block">
                                     <div class="bg-slate-900 text-white text-xs font-bold px-3 py-1.5 rounded-lg shadow-xl whitespace-nowrap">
-                                        {{ number_format($bar['value'], 0, ',', ' ') }} €
+                                        {{ number_format($bar['value'], 0, ',', ' ') }} MAD
                                     </div>
                                 </div>
                             </div>
@@ -184,7 +184,7 @@
                             </span>
                             <div class="min-w-0 flex-1">
                                 <p class="text-sm font-semibold text-slate-900 group-hover:text-blue-600 transition-colors duration-200">{{ $act['titre'] }}</p>
-                                <p class="text-sm text-slate-600 mt-1">{{ $act['client'] }}@if($act['montant'] !== null) <span class="font-semibold text-slate-900">— {{ number_format($act['montant'], 0, ',', ' ') }} €</span>@endif</p>
+                                <p class="text-sm text-slate-600 mt-1">{{ $act['client'] }}@if($act['montant'] !== null) <span class="font-semibold text-slate-900">— {{ number_format($act['montant'], 0, ',', ' ') }} MAD</span>@endif</p>
                                 <p class="mt-1.5 text-xs text-slate-400 flex items-center gap-1">
                                     <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                                     {{ $act['date']->diffForHumans() }}

@@ -5,34 +5,55 @@ namespace App\Services;
 use App\Models\BonLivraison;
 use App\Models\BonRetour;
 use App\Models\Facture;
+use Illuminate\Validation\ValidationException;
 
 class BonRetourService
 {
     protected AvoirService $avoirService;
+    protected FactureService $factureService;
+    protected StockMouvementService $stockService;
 
-    public function __construct(AvoirService $avoirService)
+    public function __construct(AvoirService $avoirService, FactureService $factureService, StockMouvementService $stockService)
     {
         $this->avoirService = $avoirService;
+        $this->factureService = $factureService;
+        $this->stockService = $stockService;
     }
 
     /**
      * Create a new bon de retour
-     * Business rule: Must be linked to an existing bon de livraison
+     * Business rules:
+     * - Must be linked to an existing bon de livraison
+     * - Cannot return more than delivered minus previously returned
+     * - Stock increases immediately when BR is created
+     * - Triggers avoir creation OR invoice recalculation based on payment status
      */
     public function create(array $data): BonRetour
     {
-        // Validate that the bon de livraison exists
+        // Validate that the bon de livraison exists and is validated
         $bonLivraison = BonLivraison::findOrFail($data['bon_livraison_id']);
+
+        if ($bonLivraison->statut !== 'validé') {
+            throw ValidationException::withMessages([
+                'bon_livraison' => 'Le bon de livraison doit être validé.'
+            ]);
+        }
 
         // Validate quantities don't exceed delivered quantities
         $totalReturnQty = collect($data['lignes'] ?? [])->sum('quantite');
         if (!$this->canReturnQuantity($bonLivraison, $totalReturnQty)) {
-            throw new \Exception('La quantité retournée dépasse la quantité livrée.');
+            throw ValidationException::withMessages([
+                'quantite' => 'La quantité retournée dépasse la quantité livrée.'
+            ]);
         }
+
+        // Generate numero
+        $params = \App\Models\ParametresEntreprise::first();
+        $numero = $params->prefixe_bon_retour . str_pad((string) $params->prochain_numero_bon_retour, 4, '0', STR_PAD_LEFT);
 
         // Create bon de retour
         $bonRetour = BonRetour::create([
-            'numero' => $this->generateBonRetourNumero(),
+            'numero' => $numero,
             'client_id' => $bonLivraison->client_id,
             'bon_livraison_id' => $bonLivraison->id,
             'facture_id' => $bonLivraison->facture_id ?? null,
@@ -43,14 +64,26 @@ class BonRetourService
         // Create lines
         $this->createLines($bonRetour, $data['lignes'] ?? []);
 
-        // Link to facture if it exists and is paid
-        if ($bonRetour->facture && $bonRetour->facture->isPaid()) {
-            // Automatically create avoir for paid invoices
-            $this->avoirService->createAvoirFromReturn($bonRetour);
+        // STOCK: Record stock movements (increment due to return)
+        $bonRetour->incrementStock();
+
+        // Handle invoice updates based on payment status
+        if ($bonRetour->facture) {
+            if ($bonRetour->facture->isPaid()) {
+                // CASE B: Invoice PAID → Create avoir (financial correction)
+                $this->avoirService->createAvoirFromReturn($bonRetour);
+            } else {
+                // CASE A: Invoice NOT PAID → Recalculate invoice total
+                // Formula: Total delivered − Total returned
+                $this->factureService->recalculateForUnpaidInvoice($bonRetour->facture);
+            }
         }
+
+        $params->increment('prochain_numero_bon_retour');
 
         return $bonRetour;
     }
+
 
     /**
      * Update bon de retour (only if not yet processed)
@@ -86,6 +119,7 @@ class BonRetourService
 
     /**
      * Check if quantity can be returned for this bon de livraison
+     * Business rule: Cannot return more than delivered minus previously returned
      */
     private function canReturnQuantity(BonLivraison $bonLivraison, float $qty): bool
     {
@@ -99,26 +133,16 @@ class BonRetourService
     }
 
     /**
-     * Generate unique bon de retour numero
-     */
-    private function generateBonRetourNumero(): string
-    {
-        $lastBon = BonRetour::orderByDesc('id')->first();
-        $number = ($lastBon?->id ?? 0) + 1;
-        return 'BR-' . date('Y') . '-' . str_pad($number, 6, '0', STR_PAD_LEFT);
-    }
-
-    /**
      * Get all returns for a bon de livraison
      */
-    public function getRetursForDelivery(BonLivraison $bonLivraison)
+    public function getReturnsForDelivery(BonLivraison $bonLivraison)
     {
         return BonRetour::where('bon_livraison_id', $bonLivraison->id)->get();
     }
 
     /**
      * Calculate refund amount for a bon de retour
-     * (This is used for unpaid invoices - CASE 1)
+     * Used for displaying refund value
      */
     public function calculateRefundAmount(BonRetour $bonRetour): float
     {

@@ -55,7 +55,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700">Quantité *</label>
-                            <input type="number" step="0.01" name="lignes[{{ $index }}][quantite]" value="{{ $ligne->quantite }}" required class="mt-1 block w-full rounded-lg border border-slate-300 px-4 py-2" />
+                            <input type="number" step="1" name="lignes[{{ $index }}][quantite]" value="{{ $ligne->quantite }}" required class="mt-1 block w-full rounded-lg border border-slate-300 px-4 py-2" />
                         </div>
                         <div class="flex items-end">
                             <button type="button" onclick="removeLigne(this)" class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Supprimer</button>
@@ -69,7 +69,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-slate-700">Quantité *</label>
-                            <input type="number" step="0.01" name="lignes[0][quantite]" placeholder="0" required class="mt-1 block w-full rounded-lg border border-slate-300 px-4 py-2" />
+                            <input type="number" step="1" name="lignes[0][quantite]" placeholder="0" required class="mt-1 block w-full rounded-lg border border-slate-300 px-4 py-2" />
                         </div>
                         <div class="flex items-end">
                             <button type="button" onclick="removeLigne(this)" class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700">Supprimer</button>

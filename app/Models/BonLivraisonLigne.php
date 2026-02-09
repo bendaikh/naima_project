@@ -9,15 +9,27 @@ class BonLivraisonLigne extends Model
 {
     protected $table = 'bon_livraison_lignes';
 
-    protected $fillable = ['bon_livraison_id', 'designation', 'quantite'];
+    protected $fillable = [
+        'bon_livraison_id',
+        'article_id',
+        'designation',
+        'quantite',
+    ];
 
     protected function casts(): array
     {
-        return ['quantite' => 'decimal:2'];
+        return [
+            'quantite' => 'decimal:2',
+        ];
     }
 
     public function bonLivraison(): BelongsTo
     {
         return $this->belongsTo(BonLivraison::class, 'bon_livraison_id');
+    }
+
+    public function article(): BelongsTo
+    {
+        return $this->belongsTo(Article::class, 'article_id');
     }
 }

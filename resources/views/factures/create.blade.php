@@ -1,191 +1,217 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Créer une facture')
+@section('title', 'Nouvelle facture')
 
 @section('content')
-    <div class="space-y-6">
-        <div>
-            <h1 class="text-3xl font-bold text-slate-800">Créer une facture</h1>
-            <p class="text-sm text-slate-600 mt-1">Créer une facture</p>
-        </div>
-
-        <form method="POST" action="{{ route('factures.store') }}" class="space-y-6">
+    <div class="max-w-6xl space-y-6">
+        <h1 class="text-2xl font-semibold text-[#1F2937]">Nouvelle facture</h1>
+        <form method="post" action="{{ route('factures.store') }}" class="space-y-4 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
             @csrf
-
-            <!-- Top Section: Account Type, Client, Facturation Type, Model -->
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-                <div>
-                    <label for="compte_type" class="block text-sm font-medium text-slate-700">Type de compte*</label>
-                    <select name="compte_type" id="compte_type" required class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                        <option value="">Sélectionner un type de compte</option>
-                        <option value="client" {{ old('compte_type') == 'client' ? 'selected' : '' }}>Client</option>
-                        <option value="fournisseur" {{ old('compte_type') == 'fournisseur' ? 'selected' : '' }}>Fournisseur</option>
-                    </select>
-                    @error('compte_type') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            
+            <!-- Info Box if from Devis -->
+            @if($devis)
+                <input type="hidden" name="devis_id" value="{{ $devis->id }}">
+                <div class="rounded-lg bg-[#E0EDF8] p-3 text-sm text-[#1860E1] border-l-4 border-[#1860E1]">
+                    Création à partir du devis {{ $devis->numero }} ({{ $devis->client->nom_raison_sociale }})
                 </div>
+            @endif
 
+            <!-- Client and Basic Info Section -->
+            <div class="grid grid-cols-2 gap-4 border-b border-[#E5E7EB] pb-6">
                 <div>
-                    <label for="client_id" class="block text-sm font-medium text-slate-700">Client*</label>
-                    <select name="client_id" id="client_id" required class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                        <option value="">Veuillez sélectionner</option>
-                        @foreach($clients as $client)
-                            <option value="{{ $client->id }}" {{ old('client_id', $devis?->client_id) == $client->id ? 'selected' : '' }}>{{ $client->nom_raison_sociale }}</option>
+                    <label for="client_id" class="block text-sm font-medium text-[#374151]">Client *</label>
+                    <select name="client_id" id="client_id" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                        <option value="">Choisir un client</option>
+                        @foreach($clients as $c)
+                            <option value="{{ $c->id }}" {{ old('client_id', $devis?->client_id) == $c->id ? 'selected' : '' }}>{{ $c->nom_raison_sociale }}</option>
                         @endforeach
                     </select>
                     @error('client_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
-
+                
                 <div>
-                    <label for="type_facturation" class="block text-sm font-medium text-slate-700">Type de facturation*</label>
-                    <select name="type_facturation" id="type_facturation" required class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                        <option value="">Sélectionner</option>
-                        <option value="facture" {{ old('type_facturation') == 'facture' ? 'selected' : '' }}>Facture</option>
-                        <option value="facture_simplifiee" {{ old('type_facturation') == 'facture_simplifiee' ? 'selected' : '' }}>Facture simplifiée</option>
-                    </select>
-                    @error('type_facturation') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <label for="date" class="block text-sm font-medium text-[#374151]">Date *</label>
+                    <input type="date" name="date" id="date" value="{{ old('date', date('Y-m-d')) }}" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                    @error('date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label for="modele" class="block text-sm font-medium text-slate-700">Modèle</label>
-                    <input type="text" name="modele" id="modele" value="{{ old('modele') }}" placeholder="Hong Kong" class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    <label for="date_echeance" class="block text-sm font-medium text-[#374151]">Date d'échéance</label>
+                    <input type="date" name="date_echeance" id="date_echeance" value="{{ old('date_echeance') }}" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+
+                <div>
+                    <label for="tva" class="block text-sm font-medium text-[#374151]">TVA (%)</label>
+                    <input type="number" name="tva" id="tva" value="{{ old('tva', $devis?->tva ?? 20) }}" step="0.01" min="0" max="100" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 </div>
             </div>
 
-            <!-- Dates and Category Section -->
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
-                <div>
-                    <label for="date_emission" class="block text-sm font-medium text-slate-700">Date d'émission*</label>
-                    <input type="date" name="date_emission" id="date_emission" value="{{ old('date_emission', date('Y-m-d')) }}" required class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                    @error('date_emission') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            <!-- Article Selection Section -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-[#1F2937]">Articles</h3>
+                
+                <div class="grid grid-cols-3 gap-4">
+                    <div>
+                        <label for="article_select" class="block text-sm font-medium text-[#374151]">Sélectionner un article</label>
+                        <select id="article_select" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                            <option value="">-- Choisir un article --</option>
+                            @foreach($articles as $article)
+                                <option value="{{ $article->id }}" data-name="{{ $article->nom }}" data-price="{{ $article->prix_vente }}">
+                                    {{ $article->nom }} ({{ $article->prix_vente }} MAD)
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label for="quantite_input" class="block text-sm font-medium text-[#374151]">Quantité</label>
+                        <input type="number" id="quantite_input" step="1" min="1" value="1" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                    </div>
+                    
+                    <div class="flex items-end">
+                        <button type="button" id="add_article_btn" class="w-full rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1557C7]">
+                            Ajouter
+                        </button>
+                    </div>
                 </div>
 
-                <div>
-                    <label for="date_echeance" class="block text-sm font-medium text-slate-700">Date d'échéance*</label>
-                    <input type="date" name="date_echeance" id="date_echeance" value="{{ old('date_echeance') }}" required class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                    @error('date_echeance') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label for="categorie" class="block text-sm font-medium text-slate-700">Catégorie*</label>
-                    <select name="categorie" id="categorie" required class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                        <option value="">Cat</option>
-                        <option value="electronique" {{ old('categorie') == 'electronique' ? 'selected' : '' }}>Électronique</option>
-                        <option value="electromenager" {{ old('categorie') == 'electromenager' ? 'selected' : '' }}>Électroménager</option>
-                        <option value="informatique" {{ old('categorie') == 'informatique' ? 'selected' : '' }}>Informatique</option>
-                    </select>
-                    @error('categorie') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label for="numero_facture" class="block text-sm font-medium text-slate-700">Numéro de facture</label>
-                    <input type="text" name="numero_facture" id="numero_facture" value="{{ old('numero_facture') }}" placeholder="#FACT0333" class="mt-1 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                </div>
-            </div>
-
-            <!-- Articles Section -->
-            <div class="rounded-lg border border-slate-200 bg-white p-6 shadow">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold text-slate-800">Articles</h3>
-                    <button type="button" id="addArticleBtn" class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-700">
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        Ajouter un article
-                    </button>
-                </div>
-
+                <!-- Articles Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm">
-                        <thead class="border-b border-slate-200">
+                        <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                             <tr>
-                                <th class="text-left px-4 py-3 font-semibold text-slate-600">TYPE D'ARTICLE</th>
-                                <th class="text-left px-4 py-3 font-semibold text-slate-600">ARTICLES</th>
-                                <th class="text-left px-4 py-3 font-semibold text-slate-600">QUANTITÉ</th>
-                                <th class="text-left px-4 py-3 font-semibold text-slate-600">PRIX</th>
-                                <th class="text-left px-4 py-3 font-semibold text-slate-600">REMISE</th>
-                                <th class="text-left px-4 py-3 font-semibold text-slate-600">IMPÔT (%)</th>
-                                <th class="text-right px-4 py-3 font-semibold text-slate-600">MONTANT</th>
+                                <th class="px-4 py-2 text-left font-medium text-[#374151]">Désignation</th>
+                                <th class="px-4 py-2 text-right font-medium text-[#374151]">Quantité</th>
+                                <th class="px-4 py-2 text-right font-medium text-[#374151]">Prix unitaire</th>
+                                <th class="px-4 py-2 text-right font-medium text-[#374151]">Total HT</th>
+                                <th class="px-4 py-2 text-center font-medium text-[#374151]">Action</th>
                             </tr>
                         </thead>
-                        <tbody id="articlesContainer" class="divide-y divide-slate-200">
-                            <!-- Articles will be added here dynamically -->
-                            <tr>
-                                <td colspan="7" class="px-4 py-8 text-center text-slate-500">Aucun article ajouté</td>
-                            </tr>
+                        <tbody id="articles_tbody">
+                            <!-- Articles will be added here by JavaScript -->
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Description -->
-                <div class="mt-6">
-                    <label for="description" class="block text-sm font-medium text-slate-700">Description</label>
-                    <textarea name="description" id="description" rows="4" class="mt-2 w-full rounded-lg border border-slate-300 bg-slate-50 px-4 py-2 text-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Détails supplémentaires..."></textarea>
-                </div>
+                <!-- Hidden input to store articles data -->
+                <input type="hidden" id="articles_data" name="articles_data" value="">
 
                 <!-- Totals Section -->
-                <div class="mt-6 space-y-3 border-t border-slate-200 pt-6 text-right text-sm">
-                    <div class="flex justify-end gap-4">
-                        <span class="text-slate-600">Sous-total (dhs):</span>
-                        <span class="w-24 font-medium text-slate-800">0.00</span>
+                <div class="mt-8 bg-gradient-to-br from-[#F3F4F6] to-[#E5E7EB] rounded-lg p-6 border border-[#E5E7EB]">
+                    <div class="grid grid-cols-3 gap-4">
+                        <!-- Total HT Card -->
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-[#1860E1] shadow-sm">
+                            <p class="text-xs font-medium text-[#6B7280] uppercase tracking-wide">Total HT</p>
+                            <p class="mt-2 text-2xl font-bold text-[#1F2937]"><span id="total_ht">0.00</span></p>
+                            <p class="text-xs text-[#9CA3AF] mt-1">MAD</p>
+                        </div>
+
+                        <!-- TVA Card -->
+                        <div class="bg-white rounded-lg p-4 border-l-4 border-[#F97316] shadow-sm">
+                            <p class="text-xs font-medium text-[#6B7280] uppercase tracking-wide">TVA</p>
+                            <p class="mt-2 text-2xl font-bold text-[#1F2937]"><span id="total_tva">0.00</span></p>
+                            <p class="text-xs text-[#9CA3AF] mt-1">MAD</p>
+                        </div>
+
+                        <!-- Total TTC Card -->
+                        <div class="bg-gradient-to-br from-[#1860E1] to-[#1557C7] rounded-lg p-4 border-l-4 border-[#0F3D8F] shadow-md">
+                            <p class="text-xs font-medium text-blue-100 uppercase tracking-wide">Total TTC</p>
+                            <p class="mt-2 text-2xl font-bold text-white"><span id="total_ttc">0.00</span></p>
+                            <p class="text-xs text-blue-200 mt-1">MAD</p>
+                        </div>
                     </div>
-                    <div class="flex justify-end gap-4">
-                        <span class="text-slate-600">Remise (dhs):</span>
-                        <span class="w-24 font-medium text-slate-800">0.00</span>
-                    </div>
-                    <div class="flex justify-end gap-4">
-                        <span class="text-slate-600">Impôt (dhs):</span>
-                        <span class="w-24 font-medium text-slate-800">0.00</span>
-                    </div>
-                    <div class="border-t border-slate-200 pt-3 flex justify-end gap-4 text-base font-bold">
-                        <span class="text-slate-800">Montant total (dhs):</span>
-                        <span class="w-24 text-slate-800">0.00</span>
+
+                    <!-- Summary Line -->
+                    <div class="mt-4 pt-4 border-t border-[#E5E7EB] flex justify-between items-center text-sm">
+                        <span class="text-[#6B7280]">TVA (<span id="tva_rate">20</span>%)</span>
+                        <span class="text-[#1F2937] font-semibold">+ <span id="total_tva_inline">0.00</span> MAD</span>
                     </div>
                 </div>
             </div>
 
             <!-- Form Actions -->
-            <div class="flex gap-4 justify-end">
-                <a href="{{ route('factures.index') }}" class="rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Annuler</a>
-                <button type="submit" class="rounded-lg bg-red-600 px-6 py-2 text-sm font-semibold text-white hover:bg-red-700">Créer</button>
+            <div class="flex gap-3 border-t border-[#E5E7EB] pt-6">
+                <button type="submit" class="rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1557C7]">Créer la facture</button>
+                <a href="{{ route('factures.index') }}" class="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-[#6B7280] hover:bg-[#F9FAFB]">Annuler</a>
             </div>
         </form>
     </div>
 
     <script>
-        document.getElementById('addArticleBtn').addEventListener('click', function(e) {
-            e.preventDefault();
-            const container = document.getElementById('articlesContainer');
-            if (container.querySelector('tr td[colspan="7"]')) {
-                container.innerHTML = '';
-            }
+        let articles = [];
+        let tvaRate = parseFloat(document.getElementById('tva').value) / 100;
+
+        document.getElementById('add_article_btn').addEventListener('click', function() {
+            const select = document.getElementById('article_select');
+            const quantiteInput = document.getElementById('quantite_input');
+            const selectedOption = select.options[select.selectedIndex];
             
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td class="px-4 py-3">
-                    <select name="article_type[]" class="w-full rounded border border-slate-300 px-2 py-1 text-sm">
-                        <option value="">-</option>
-                        <option value="product">Produit</option>
-                        <option value="service">Service</option>
-                    </select>
-                </td>
-                <td class="px-4 py-3">
-                    <input type="text" name="article_name[]" class="w-full rounded border border-slate-300 px-2 py-1 text-sm" placeholder="Nom article">
-                </td>
-                <td class="px-4 py-3">
-                    <input type="number" name="quantity[]" class="w-full rounded border border-slate-300 px-2 py-1 text-sm" placeholder="Quantité" value="1">
-                </td>
-                <td class="px-4 py-3">
-                    <input type="number" name="price[]" step="0.01" class="w-full rounded border border-slate-300 px-2 py-1 text-sm" placeholder="Prix">
-                </td>
-                <td class="px-4 py-3">
-                    <input type="number" name="discount[]" step="0.01" class="w-full rounded border border-slate-300 px-2 py-1 text-sm" placeholder="Remise" value="0">
-                </td>
-                <td class="px-4 py-3">
-                    <input type="number" name="tax[]" step="0.01" class="w-full rounded border border-slate-300 px-2 py-1 text-sm" placeholder="%" value="20">
-                </td>
-                <td class="text-right px-4 py-3">
-                    <span class="font-medium dhs">0.00</span>
-                </td>
-            `;
-            container.appendChild(newRow);
+            if (!selectedOption.value) {
+                alert('Veuillez sélectionner un article');
+                return;
+            }
+
+            const article = {
+                id: selectedOption.value,
+                designation: selectedOption.dataset.name,
+                prix_unitaire: parseFloat(selectedOption.dataset.price),
+                quantite: parseFloat(quantiteInput.value),
+            };
+
+            article.total_ht = (article.quantite * article.prix_unitaire).toFixed(2);
+            
+            articles.push(article);
+            updateTable();
+            
+            // Reset inputs
+            select.value = '';
+            quantiteInput.value = '1';
+        });
+
+        function removeArticle(index) {
+            articles.splice(index, 1);
+            updateTable();
+        }
+
+        function updateTable() {
+            const tbody = document.getElementById('articles_tbody');
+            tbody.innerHTML = '';
+
+            let totalHt = 0;
+
+            articles.forEach((article, index) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-[#E5E7EB] hover:bg-[#F9FAFB]';
+                row.innerHTML = `
+                    <td class="px-4 py-3 text-[#374151]">${article.designation}</td>
+                    <td class="px-4 py-3 text-right text-[#374151]">${parseFloat(article.quantite).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right text-[#374151]">${parseFloat(article.prix_unitaire).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-right text-[#374151] font-medium">${parseFloat(article.total_ht).toFixed(2)}</td>
+                    <td class="px-4 py-3 text-center">
+                        <button type="button" onclick="removeArticle(${index})" class="text-red-600 hover:text-red-800 text-sm font-medium">Supprimer</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                totalHt += parseFloat(article.total_ht);
+            });
+
+            const totalTva = (totalHt * tvaRate).toFixed(2);
+            const totalTtc = (totalHt + parseFloat(totalTva)).toFixed(2);
+
+            document.getElementById('total_ht').textContent = totalHt.toFixed(2);
+            document.getElementById('total_tva').textContent = totalTva;
+            document.getElementById('total_tva_inline').textContent = totalTva;
+            document.getElementById('total_ttc').textContent = totalTtc;
+
+            // Store articles data as JSON for form submission
+            document.getElementById('articles_data').value = JSON.stringify(articles);
+        }
+
+        // Update totals when TVA changes
+        document.getElementById('tva').addEventListener('change', function() {
+            tvaRate = parseFloat(this.value) / 100;
+            document.getElementById('tva_rate').textContent = this.value;
+            updateTable();
         });
     </script>
 @endsection

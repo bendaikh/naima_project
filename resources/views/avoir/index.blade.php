@@ -5,7 +5,11 @@
 @section('content')
 <div class="space-y-6">
     <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-slate-800">Avoirs (Factures d'Avoir)</h1>
+        <div>
+            <h1 class="text-3xl font-bold text-slate-800">Avoirs (Crédits Clients)</h1>
+            <p class="text-sm text-slate-600 mt-1">Avoirs créés automatiquement lors de retours de marchandises</p>
+        </div>
+        <a href="{{ route('factures.index') }}" class="rounded-lg border border-slate-300 px-6 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">← Retour</a>
     </div>
 
     @if(session('success'))
@@ -27,7 +31,8 @@
                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Numéro</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Client</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Facture</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Montant TTC</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Bon de Retour</th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-slate-600">Montant TTC</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Statut</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Actions</th>
                     </tr>
@@ -36,13 +41,22 @@
                     @foreach($avoirs as $avoir)
                         <tr class="hover:bg-slate-50">
                             <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $avoir->numero }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">{{ $avoir->client->name ?? 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">{{ $avoir->client->nom_raison_sociale ?? 'N/A' }}</td>
                             <td class="px-6 py-4 text-sm text-slate-600">
                                 <a href="{{ route('factures.show', $avoir->facture->id) }}" class="text-blue-600 hover:underline">
                                     {{ $avoir->facture->numero ?? 'N/A' }}
                                 </a>
                             </td>
-                            <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ number_format($avoir->montant_ttc, 2, ',', ' ') }} DH</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">
+                                @if($avoir->bonRetour)
+                                    <a href="{{ route('bon-retour.show', $avoir->bonRetour->id) }}" class="text-blue-600 hover:underline">
+                                        {{ $avoir->bonRetour->numero ?? 'N/A' }}
+                                    </a>
+                                @else
+                                    <span class="text-slate-400">-</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 text-right text-sm font-medium text-slate-900">{{ number_format($avoir->montant_ttc, 2, ',', ' ') }} DH</td>
                             <td class="px-6 py-4 text-sm">
                                 <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold
                                     @if($avoir->statut === 'brouillon') bg-slate-100 text-slate-800

@@ -2,61 +2,59 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Article extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'nom',
-        'ugs',
-        'impot',
         'categorie',
         'description',
         'prix_vente',
         'prix_achat',
+        'quantite',
+        'quantite_stock',
+        'unite',
+        'numero_facture',
         'compte_revenu',
         'compte_depense',
-        'unite',
-        'quantite',
         'image_path',
         'entrepot',
+        'ugs',
+        'impot',
     ];
 
     protected $casts = [
         'prix_vente' => 'decimal:2',
         'prix_achat' => 'decimal:2',
         'quantite' => 'decimal:2',
+        'quantite_stock' => 'decimal:2',
         'impot' => 'decimal:2',
     ];
 
-    /**
-     * Get the client associated with this article
-     */
-    public function client(): BelongsTo
+    public function bonLivraisonLignes(): HasMany
     {
-        return $this->belongsTo(Client::class, 'client_id');
+        return $this->hasMany(BonLivraisonLigne::class);
     }
 
-    /**
-     * Get profit margin
-     */
-    public function getProfitMarginAttribute(): float
+    public function bonRetourLignes(): HasMany
     {
-        if ($this->prix_achat == 0) {
-            return 0;
-        }
-        return (($this->prix_vente - $this->prix_achat) / $this->prix_achat) * 100;
+        return $this->hasMany(BonRetourLigne::class);
     }
 
-    /**
-     * Get total value
-     */
-    public function getTotalValueAttribute(): float
+    public function devisLignes(): HasMany
     {
-        return $this->prix_vente * $this->quantite;
+        return $this->hasMany(DevisLigne::class);
+    }
+
+    public function factureLignes(): HasMany
+    {
+        return $this->hasMany(FactureLigne::class);
+    }
+
+    public function stockMouvements(): HasMany
+    {
+        return $this->hasMany(StockMouvement::class);
     }
 }

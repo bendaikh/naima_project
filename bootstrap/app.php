@@ -11,7 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // CSRF protection is enabled by default for web routes
+        // but we can optionally exclude specific routes if needed
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

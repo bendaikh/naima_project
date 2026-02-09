@@ -98,4 +98,46 @@ class Facture extends Model
             'statut' => 'payee',
         ]);
     }
+
+    /**
+     * Update payment status based on amount paid
+     */
+    public function updatePaymentStatus(float $amountPaid): void
+    {
+        $this->montant_paye = $amountPaid;
+        
+        if ($amountPaid >= $this->total_ttc) {
+            $this->statut = 'payee';
+        } elseif ($amountPaid > 0) {
+            $this->statut = 'partiellement_payee';
+        } else {
+            $this->statut = 'non_payee';
+        }
+        
+        $this->save();
+    }
+
+    /**
+     * Get amount remaining to be paid
+     */
+    public function getAmountRemaining(): float
+    {
+        return max(0, $this->total_ttc - $this->montant_paye);
+    }
+
+    /**
+     * Check if facture can be edited (only if not paid)
+     */
+    public function canBeEdited(): bool
+    {
+        return $this->statut !== 'payee';
+    }
+
+    /**
+     * Check if delivery can be created from this facture
+     */
+    public function canCreateDelivery(): bool
+    {
+        return $this->statut !== 'payee' && $this->lignes()->count() > 0;
+    }
 }

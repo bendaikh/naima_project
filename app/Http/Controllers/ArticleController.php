@@ -3,141 +3,94 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
-use App\Models\Client;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
-    /**
-     * Display list of articles
-     */
-    public function index(Request $request): View
+    public function index(): View
     {
-        $query = Article::with('client')->orderByDesc('created_at');
-        
-        if ($request->filled('categorie')) {
-            $query->where('categorie', $request->categorie);
-        }
-        
-        if ($request->filled('search')) {
-            $query->where('designation', 'like', '%' . $request->search . '%');
-        }
-        
-        $articles = $query->paginate(15)->withQueryString();
-        
+        $articles = Article::paginate(15);
         return view('articles.index', compact('articles'));
     }
 
-    /**
-     * Show create form with multi-step interface
-     */
     public function create(): View
     {
-        $clients = Client::orderBy('name')->get();
-        
-        return view('articles.create', [
-            'article' => new Article(),
-            'clients' => $clients,
-        ]);
+        return view('articles.create');
     }
 
-    /**
-     * Store article with multi-step validation
-     */
     public function store(Request $request)
     {
-        // Validate all steps
+        \Log::info('Article store called', [
+            'user' => auth()->user()?->id,
+            'has_csrf' => $request->has('_token'),
+            'session_id' => session()->getId(),
+        ]);
+        
         $validated = $request->validate([
-            // Details tab
-            'nom' => 'required|string|max:255',
-            'ugs' => 'required|string|max:255|unique:articles,ugs',
-            'impot' => 'required|numeric|in:5,10,20',
-            'categorie' => 'required|string',
+            'nom' => 'nullable|string|max:255',
+            'categorie' => 'required|string|max:255',
             'description' => 'nullable|string',
-            
-            // Tarifs tab
             'prix_vente' => 'required|numeric|min:0',
             'prix_achat' => 'required|numeric|min:0',
-            'compte_revenu' => 'nullable|string',
-            'compte_depense' => 'nullable|string',
-            'unite' => 'required|in:dh,piece,kg,m',
             'quantite' => 'required|numeric|min:0',
-            
-            // Medias tab
-            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            
-            // Entrepot tab
-            'entrepot' => 'nullable|string',
+            'quantite_stock' => 'nullable|numeric|min:0',
+            'unite' => 'required|string|max:50',
+            'numero_facture' => 'nullable|string|unique:articles,numero_facture',
+            'compte_revenu' => 'nullable|string|max:255',
+            'compte_depense' => 'nullable|string|max:255',
+            'image_path' => 'nullable|string',
+            'entrepot' => 'nullable|string|max:255',
+            'ugs' => 'nullable|string|max:255',
+            'impot' => 'nullable|numeric|min:0',
         ]);
 
-        // Handle image upload
-        if ($request->hasFile('image_path')) {
-            $path = $request->file('image_path')->store('articles', 'public');
-            $validated['image_path'] = $path;
+        // If quantite_stock is not provided, set it equal to quantite
+        if (!isset($validated['quantite_stock']) || is_null($validated['quantite_stock'])) {
+            $validated['quantite_stock'] = $validated['quantite'];
         }
 
-        // Create article
-        $article = Article::create($validated);
-
-        return redirect()
-            ->route('articles.show', $article)
-            ->with('success', 'Article créé avec succès!');
+        Article::create($validated);
+        return redirect()->route('articles.index')->with('success', 'Article créé avec succès.');
     }
 
-    /**
-     * Display article details
-     */
     public function show(Article $article): View
     {
-        $article->load('client');
-        
         return view('articles.show', compact('article'));
     }
 
     public function edit(Article $article): View
     {
-        return view('articles.edit', [
-            'article' => $article,
-        ]);
+        return view('articles.edit', compact('article'));
     }
 
     public function update(Request $request, Article $article)
     {
         $validated = $request->validate([
-            'nom' => 'required|string|max:255',
-            'ugs' => 'required|string|max:255|unique:articles,ugs,' . $article->id,
-            'impot' => 'required|numeric|in:5,10,20',
-            'categorie' => 'required|string',
+            'nom' => 'nullable|string|max:255',
+            'categorie' => 'required|string|max:255',
             'description' => 'nullable|string',
             'prix_vente' => 'required|numeric|min:0',
             'prix_achat' => 'required|numeric|min:0',
-            'compte_revenu' => 'nullable|string',
-            'compte_depense' => 'nullable|string',
-            'unite' => 'required|in:dh,piece,kg,m',
             'quantite' => 'required|numeric|min:0',
-            'image_path' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'entrepot' => 'nullable|string',
+            'quantite_stock' => 'nullable|numeric|min:0',
+            'unite' => 'required|string|max:50',
+            'numero_facture' => 'nullable|string|unique:articles,numero_facture,' . $article->id,
+            'compte_revenu' => 'nullable|string|max:255',
+            'compte_depense' => 'nullable|string|max:255',
+            'image_path' => 'nullable|string',
+            'entrepot' => 'nullable|string|max:255',
+            'ugs' => 'nullable|string|max:255',
+            'impot' => 'nullable|numeric|min:0',
         ]);
 
-        if ($request->hasFile('image_path')) {
-            $path = $request->file('image_path')->store('articles', 'public');
-            $validated['image_path'] = $path;
-        }
-
         $article->update($validated);
-
-        return redirect()
-            ->route('articles.show', $article)
-            ->with('success', 'Article mis à jour avec succès!');
+        return redirect()->route('articles.show', $article)->with('success', 'Article mis à jour avec succès.');
     }
 
     public function destroy(Article $article)
     {
         $article->delete();
-
-        return redirect()
-            ->route('articles.index')
-            ->with('success', 'Article supprimé avec succès!');
+        return redirect()->route('articles.index')->with('success', 'Article supprimé avec succès.');
     }
 }

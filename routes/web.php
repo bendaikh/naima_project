@@ -22,8 +22,18 @@ Route::middleware('auth')->group(function () {
     // Existing resources
     Route::resource('clients', \App\Http\Controllers\ClientController::class);
     Route::resource('fournisseurs', \App\Http\Controllers\FournisseurController::class)->except(['show']);
-    Route::resource('devis', \App\Http\Controllers\DevisController::class);
+    Route::resource('devis', \App\Http\Controllers\DevisController::class)->parameter('devis', 'devis');
     Route::resource('factures', \App\Http\Controllers\FactureController::class);
+    Route::post('factures/{facture}/mark-as-paid', [\App\Http\Controllers\FactureController::class, 'markAsPaid'])->name('factures.mark-as-paid');
+    Route::resource('articles', \App\Http\Controllers\ArticleController::class);
+    Route::resource('bon-livraison', \App\Http\Controllers\BonLivraisonController::class);
+    Route::post('bon-livraison/{bonLivraison}/validate', [\App\Http\Controllers\BonLivraisonController::class, 'validateBon'])->name('bon-livraison.validate');
+
+    // Devis status actions
+    Route::post('devis/{devis}/mark-as-sent', [\App\Http\Controllers\DevisController::class, 'markAsSent'])->name('devis.mark-as-sent');
+    Route::post('devis/{devis}/mark-as-accepted', [\App\Http\Controllers\DevisController::class, 'markAsAccepted'])->name('devis.mark-as-accepted');
+    Route::post('devis/{devis}/mark-as-refused', [\App\Http\Controllers\DevisController::class, 'markAsRefused'])->name('devis.mark-as-refused');
+    Route::post('devis/{devis}/convert-to-facture', [\App\Http\Controllers\DevisController::class, 'convertToFacture'])->name('devis.convert-to-facture');
 
     // Avoir routes (under facture section)
     Route::prefix('avoir')->name('avoir.')->group(function () {
@@ -34,65 +44,23 @@ Route::middleware('auth')->group(function () {
         Route::delete('{avoir}', [\App\Http\Controllers\AvoirController::class, 'destroy'])->name('destroy');
         Route::get('facture/{facture}', [\App\Http\Controllers\AvoirController::class, 'getForFacture'])->name('getForFacture');
     });
+
+    // Bon de Retour routes
+    Route::resource('bon-retour', \App\Http\Controllers\BonRetourController::class);
+    Route::get('bon-retour/delivery/{deliveryId}', [\App\Http\Controllers\BonRetourController::class, 'getForDelivery'])->name('bon-retour.getForDelivery');
+
+    // Stock Mouvement routes
+    Route::prefix('stock-mouvements')->name('stock-mouvements.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\StockMouvementController::class, 'index'])->name('index');
+        Route::get('{mouvement}', [\App\Http\Controllers\StockMouvementController::class, 'show'])->name('show');
+        Route::get('article/{article}', [\App\Http\Controllers\StockMouvementController::class, 'article'])->name('article');
+        Route::get('reference', [\App\Http\Controllers\StockMouvementController::class, 'reference'])->name('reference');
+        Route::post('adjustment', [\App\Http\Controllers\StockMouvementController::class, 'adjustment'])->name('adjustment');
+        Route::get('export', [\App\Http\Controllers\StockMouvementController::class, 'export'])->name('export');
+    });
+
+    // Original pages
     Route::get('rapports', [\App\Http\Controllers\RapportController::class, 'index'])->name('rapports.index');
     Route::get('parametres', [\App\Http\Controllers\ParametresController::class, 'index'])->name('parametres.index');
     Route::put('parametres', [\App\Http\Controllers\ParametresController::class, 'update'])->name('parametres.update');
-
-    // New resources
-    Route::resource('users', \App\Http\Controllers\UserController::class);
-    Route::resource('articles', \App\Http\Controllers\ArticleController::class);
-    Route::resource('bon-livraison', \App\Http\Controllers\BonLivraisonController::class);
-    Route::resource('bon-retour', \App\Http\Controllers\BonRetourController::class);
-    Route::get('bon-retour/delivery/{deliveryId}', [\App\Http\Controllers\BonRetourController::class, 'getForDelivery'])->name('bon-retour.getForDelivery');
-    Route::resource('achats', \App\Http\Controllers\AchatController::class);
-    Route::resource('projets', \App\Http\Controllers\ProjetController::class);
-    
-    // Comptabilité routes
-    Route::prefix('comptabilite')->name('comptabilite.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\ComptabiliteController::class, 'index'])->name('index');
-        Route::get('journal-general', [\App\Http\Controllers\ComptabiliteController::class, 'journalGeneral'])->name('journal-general');
-        Route::get('bilan', [\App\Http\Controllers\ComptabiliteController::class, 'bilan'])->name('bilan');
-        Route::get('resultat', [\App\Http\Controllers\ComptabiliteController::class, 'resultat'])->name('resultat');
-        Route::get('tva', [\App\Http\Controllers\ComptabiliteController::class, 'tva'])->name('tva');
-    });
-
-    // GRH routes
-    Route::prefix('grh')->name('grh.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\GrhController::class, 'index'])->name('index');
-        Route::get('employes', [\App\Http\Controllers\GrhController::class, 'employes'])->name('employes');
-        Route::get('conges', [\App\Http\Controllers\GrhController::class, 'conges'])->name('conges');
-        Route::get('paies', [\App\Http\Controllers\GrhController::class, 'paies'])->name('paies');
-    });
-
-    // PDV routes
-    Route::prefix('pdv')->name('pdv.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\PdvController::class, 'index'])->name('index');
-        Route::get('caisse', [\App\Http\Controllers\PdvController::class, 'caisse'])->name('caisse');
-        Route::get('ventes', [\App\Http\Controllers\PdvController::class, 'ventes'])->name('ventes');
-        Route::get('rapport-journalier', [\App\Http\Controllers\PdvController::class, 'rapportJournalier'])->name('rapport-journalier');
-    });
-
-    // CRC routes
-    Route::prefix('crc')->name('crc.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\CrcController::class, 'index'])->name('index');
-        Route::get('contacts', [\App\Http\Controllers\CrcController::class, 'contacts'])->name('contacts');
-        Route::get('opportunites', [\App\Http\Controllers\CrcController::class, 'opportunites'])->name('opportunites');
-        Route::get('campagnes', [\App\Http\Controllers\CrcController::class, 'campagnes'])->name('campagnes');
-    });
-
-    // Messager routes
-    Route::prefix('messager')->name('messager.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\MessagerController::class, 'index'])->name('index');
-        Route::get('conversation/{id}', [\App\Http\Controllers\MessagerController::class, 'conversation'])->name('conversation');
-        Route::post('store', [\App\Http\Controllers\MessagerController::class, 'store'])->name('store');
-    });
-
-    // Support routes
-    Route::prefix('support')->name('support.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\SupportController::class, 'index'])->name('index');
-        Route::get('create', [\App\Http\Controllers\SupportController::class, 'create'])->name('create');
-        Route::post('store', [\App\Http\Controllers\SupportController::class, 'store'])->name('store');
-        Route::get('{id}', [\App\Http\Controllers\SupportController::class, 'show'])->name('show');
-        Route::put('{id}', [\App\Http\Controllers\SupportController::class, 'update'])->name('update');
-    });
 });

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Client;
 use App\Models\Devis;
 use App\Models\Facture;
+use App\Models\FactureLigne;
 use App\Models\ParametresEntreprise;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,44 +26,69 @@ class FactureController extends Controller
     public function create(Request $request): View
     {
         $clients = Client::orderBy('nom_raison_sociale')->get();
+        $articles = Article::orderBy('nom')->get();
         $devisId = $request->get('devis_id');
         $devis = $devisId ? Devis::with('client', 'lignes')->find($devisId) : null;
-        return view('factures.create', [
-            'facture' => new Facture,
-            'clients' => $clients,
-            'devis' => $devis,
-            'compteTypes' => ['client' => 'Client', 'fournisseur' => 'Fournisseur'],
-            'facturationTypes' => ['facture' => 'Facture', 'facture_simplifiee' => 'Facture simplifiée', 'devis' => 'Devis'],
-            'categories' => ['electronique' => 'Électronique', 'electromenager' => 'Électroménager', 'informatique' => 'Informatique'],
-        ]);
+        return view('factures.create', ['facture' => new Facture, 'clients' => $clients, 'articles' => $articles, 'devis' => $devis]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
-            'compte_type' => 'required|in:client,fournisseur',
-            'type_facturation' => 'required|in:facture,facture_simplifiee',
-            'date_emission' => 'required|date',
-            'date_echeance' => 'required|date',
-            'categorie' => 'required|string',
-            'modele' => 'nullable|string',
-            'numero_facture' => 'nullable|string',
-            'description' => 'nullable|string',
+            'devis_id' => 'nullable|exists:devis,id',
+            'date' => 'required|date',
+            'date_echeance' => 'nullable|date',
+            'tva' => 'nullable|numeric|min:0|max:100',
+            'articles_data' => 'nullable|json',
         ]);
+
+        $params = ParametresEntreprise::get();
+        $validated['numero'] = $params->prefixe_facture . str_pad((string) $params->prochain_numero_facture, 4, '0', STR_PAD_LEFT);
+        $validated['tva'] = $validated['tva'] ?? $params->tva_par_defaut;
         
-        $facture = Facture::create([
-            'client_id' => $validated['client_id'],
-            'date' => $validated['date_emission'],
-            'date_echeance' => $validated['date_echeance'],
-            'numero' => $validated['numero_facture'] ?? 'FACT-' . time(),
-            'statut' => 'non_payee',
-            'total_ht' => 0,
-            'total_ttc' => 0,
-            'montant_paye' => 0,
-        ]);
+        // Initialize totals
+        $validated['total_ht'] = 0;
+        $validated['total_ttc'] = 0;
+        $validated['montant_paye'] = 0;
         
-        return redirect()->route('factures.show', $facture)->with('success', 'Facture créée avec succès.');
+        // Parse articles data if provided
+        $articlesData = [];
+        if ($validated['articles_data']) {
+            $articlesData = json_decode($validated['articles_data'], true) ?? [];
+            
+            // Calculate totals from articles
+            foreach ($articlesData as $article) {
+                $validated['total_ht'] += floatval($article['total_ht']);
+            }
+            
+            // Calculate TTC
+            $tva = $validated['total_ht'] * ($validated['tva'] / 100);
+            $validated['total_ttc'] = $validated['total_ht'] + $tva;
+        }
+        
+        $validated['statut'] = 'non_payee';
+        
+        // Remove articles_data from fillable update
+        unset($validated['articles_data']);
+        
+        // Create facture
+        $facture = Facture::create($validated);
+        
+        // Create facture lines from articles
+        foreach ($articlesData as $article) {
+            FactureLigne::create([
+                'facture_id' => $facture->id,
+                'designation' => $article['designation'],
+                'quantite' => floatval($article['quantite']),
+                'prix_unitaire' => floatval($article['prix_unitaire']),
+                'tva' => $validated['tva'],
+                'total_ht' => floatval($article['total_ht']),
+            ]);
+        }
+        
+        $params->increment('prochain_numero_facture');
+        return redirect()->route('factures.show', $facture)->with('success', 'Facture créée.');
     }
 
     public function show(Facture $facture): View
@@ -101,4 +128,15 @@ class FactureController extends Controller
         $facture->delete();
         return redirect()->route('factures.index')->with('success', 'Facture supprimée.');
     }
+
+    public function markAsPaid(Facture $facture)
+    {
+        $facture->update([
+            'statut' => 'payee',
+            'montant_paye' => $facture->total_ttc,
+        ]);
+        return redirect()->route('factures.show', $facture)
+            ->with('success', 'Facture marquée comme payée.');
+    }
 }
+

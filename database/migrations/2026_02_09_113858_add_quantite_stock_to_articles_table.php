@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->string('numero_facture')->nullable()->change();
+            $table->decimal('quantite_stock', 10, 2)->default(0)->after('quantite')->comment('Current stock quantity');
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            $table->string('numero_facture')->nullable(false)->change();
+            $table->dropColumn('quantite_stock');
         });
     }
 };

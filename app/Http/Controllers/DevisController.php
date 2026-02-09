@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Client;
 use App\Models\Devis;
+use App\Models\DevisLigne;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -22,7 +24,8 @@ class DevisController extends Controller
     public function create(): View
     {
         $clients = Client::orderBy('nom_raison_sociale')->get();
-        return view('devis.create', ['devis' => new Devis, 'clients' => $clients]);
+        $articles = Article::orderBy('nom')->get();
+        return view('devis.create', ['devis' => new Devis, 'clients' => $clients, 'articles' => $articles]);
     }
 
     public function store(Request $request)
@@ -31,14 +34,52 @@ class DevisController extends Controller
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
             'tva' => 'nullable|numeric|min:0|max:100',
+            'articles_data' => 'nullable|json',
         ]);
+
         $params = \App\Models\ParametresEntreprise::get();
         $validated['numero'] = $params->prefixe_devis . str_pad((string) $params->prochain_numero_devis, 4, '0', STR_PAD_LEFT);
         $validated['tva'] = $validated['tva'] ?? $params->tva_par_defaut;
+        
+        // Initialize totals
         $validated['total_ht'] = 0;
         $validated['total_ttc'] = 0;
+        
+        // Parse articles data if provided
+        $articlesData = [];
+        if ($validated['articles_data']) {
+            $articlesData = json_decode($validated['articles_data'], true) ?? [];
+            
+            // Calculate totals from articles
+            foreach ($articlesData as $article) {
+                $validated['total_ht'] += floatval($article['total_ht']);
+            }
+            
+            // Calculate TTC
+            $tva = $validated['total_ht'] * ($validated['tva'] / 100);
+            $validated['total_ttc'] = $validated['total_ht'] + $tva;
+        }
+        
         $validated['statut'] = 'brouillon';
+        
+        // Remove articles_data from fillable update
+        unset($validated['articles_data']);
+        
+        // Create devis
         $devis = Devis::create($validated);
+        
+        // Create devis lines from articles
+        foreach ($articlesData as $article) {
+            DevisLigne::create([
+                'devis_id' => $devis->id,
+                'designation' => $article['designation'],
+                'quantite' => floatval($article['quantite']),
+                'prix_unitaire' => floatval($article['prix_unitaire']),
+                'tva' => $validated['tva'],
+                'total_ht' => floatval($article['total_ht']),
+            ]);
+        }
+        
         $params->increment('prochain_numero_devis');
         return redirect()->route('devis.show', $devis)->with('success', 'Devis créé.');
     }
@@ -73,4 +114,54 @@ class DevisController extends Controller
         $devis->delete();
         return redirect()->route('devis.index')->with('success', 'Devis supprimé.');
     }
+
+    /**
+     * Mark devis as sent
+     */
+    public function markAsSent(Devis $devis)
+    {
+        if ($devis->markAsSent()) {
+            return redirect()->route('devis.show', $devis)->with('success', 'Devis marqué comme envoyé.');
+        }
+        return redirect()->route('devis.show', $devis)->with('error', 'Le devis ne peut pas être marqué comme envoyé.');
+    }
+
+    /**
+     * Mark devis as accepted
+     */
+    public function markAsAccepted(Devis $devis)
+    {
+        if ($devis->markAsAccepted()) {
+            return redirect()->route('devis.show', $devis)->with('success', 'Devis marqué comme accepté.');
+        }
+        return redirect()->route('devis.show', $devis)->with('error', 'Le devis ne peut pas être marqué comme accepté.');
+    }
+
+    /**
+     * Mark devis as refused
+     */
+    public function markAsRefused(Devis $devis)
+    {
+        if ($devis->markAsRefused()) {
+            return redirect()->route('devis.show', $devis)->with('success', 'Devis marqué comme refusé.');
+        }
+        return redirect()->route('devis.show', $devis)->with('error', 'Le devis ne peut pas être marqué comme refusé.');
+    }
+
+    /**
+     * Convert devis to facture
+     */
+    public function convertToFacture(Devis $devis)
+    {
+        if (!$devis->canConvertToFacture()) {
+            return redirect()->route('devis.show', $devis)->with('error', 'Le devis doit être accepté pour être converti en facture.');
+        }
+
+        $facture = $devis->convertToFacture();
+        if ($facture) {
+            return redirect()->route('factures.show', $facture)->with('success', 'Devis converti en facture avec succès.');
+        }
+        return redirect()->route('devis.show', $devis)->with('error', 'Erreur lors de la conversion du devis.');
+    }
 }
+

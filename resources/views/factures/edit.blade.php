@@ -35,7 +35,7 @@
                 </select>
             </div>
             <div>
-                <label for="montant_paye" class="block text-sm font-medium text-[#374151]">Montant payé (€)</label>
+                <label for="montant_paye" class="block text-sm font-medium text-[#374151]">Montant payé (MAD)</label>
                 <input type="number" name="montant_paye" id="montant_paye" value="{{ old('montant_paye', $facture->montant_paye) }}" step="0.01" min="0" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
             </div>
             <div class="flex gap-3">
