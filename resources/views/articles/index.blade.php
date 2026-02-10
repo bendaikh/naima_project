@@ -3,41 +3,48 @@
 @section('title', 'Articles')
 
 @section('content')
-<div class="space-y-6">
+<div class="w-full space-y-6">
     <div class="flex items-center justify-between">
-        <h1 class="text-3xl font-bold text-slate-800">Articles</h1>
-        <a href="{{ route('articles.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
+        <h1 class="text-3xl font-bold text-[#1F2937]">Articles</h1>
+        <a href="{{ route('articles.create') }}" class="inline-flex items-center gap-2 rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1557C7] transition-colors">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Créer un article
         </a>
     </div>
 
     @if(session('success'))
-        <div class="rounded-lg bg-green-50 p-4 text-green-700">{{ session('success') }}</div>
+        <div class="rounded-lg bg-[#E8F5E9] p-4 text-sm text-[#2E7D32] border-l-4 border-[#4CAF50]">{{ session('success') }}</div>
     @endif
 
+    <div class="rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm">
+        <form method="get" class="flex gap-4">
+            <input type="search" name="recherche" value="{{ request('recherche') }}" placeholder="Rechercher un article..." class="flex-1 rounded-lg border border-[#E5E7EB] px-4 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+            <button type="submit" class="rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-medium text-white hover:bg-[#1557C7] transition-colors">Rechercher</button>
+        </form>
+    </div>
+
     @if($articles->isEmpty())
-        <div class="rounded-lg border border-slate-200 bg-white p-8 text-center shadow">
-            <p class="text-slate-600">Aucun article enregistré.</p>
+        <div class="rounded-lg border border-[#E5E7EB] bg-white p-8 text-center shadow">
+            <p class="text-[#6B7280]">Aucun article enregistré.</p>
         </div>
     @else
-        <div class="overflow-hidden rounded-lg border border-slate-200 bg-white shadow">
+        <div class="overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-sm">
             <table class="w-full">
-                <thead class="border-b border-slate-200 bg-slate-50">
+                <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                     <tr>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Nom</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Description</th>
-                        <th class="px-6 py-3 text-right text-sm font-semibold text-slate-600">Prix de vente</th>
-                        <th class="px-6 py-3 text-right text-sm font-semibold text-slate-600">Stock</th>
-                        <th class="px-6 py-3 text-left text-sm font-semibold text-slate-600">Actions</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-[#374151]">Nom</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-[#374151]">Description</th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-[#374151]">Prix de vente</th>
+                        <th class="px-6 py-3 text-right text-sm font-semibold text-[#374151]">Stock</th>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-[#374151]">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
+                <tbody class="divide-y divide-[#E5E7EB]">
                     @foreach($articles as $article)
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 text-sm font-medium text-slate-900">{{ $article->nom }}</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">{{ Str::limit($article->description, 50) }}</td>
-                            <td class="px-6 py-4 text-right text-sm font-medium text-slate-900">{{ number_format($article->prix_vente, 2, ',', ' ') }} DH</td>
+                        <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 text-sm font-medium text-[#1F2937]">{{ $article->nom }}</td>
+                            <td class="px-6 py-4 text-sm text-[#6B7280]">{{ Str::limit($article->description, 50) }}</td>
+                            <td class="px-6 py-4 text-right text-sm font-medium text-[#1F2937]">{{ number_format($article->prix_vente, 2, ',', ' ') }} DH</td>
                             <td class="px-6 py-4 text-right">
                                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium
                                     @if($article->quantite_stock > $article->quantite * 0.5)
@@ -51,13 +58,21 @@
                                     {{ $article->quantite_stock }} {{ $article->unite }}
                                 </div>
                             </td>
-                            <td class="px-6 py-4 text-sm space-x-3">
-                                <a href="{{ route('articles.show', $article) }}" class="text-blue-600 hover:text-blue-700">Voir</a>
-                                <a href="{{ route('articles.edit', $article) }}" class="text-amber-600 hover:text-amber-700">Modifier</a>
-                                <form method="POST" action="{{ route('articles.destroy', $article) }}" class="inline">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-700" onclick="return confirm('Êtes-vous sûr ?')">Supprimer</button>
-                                </form>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex justify-center gap-2">
+                                    <a href="{{ route('articles.show', $article) }}" class="inline-flex items-center justify-center rounded-lg bg-blue-500 w-8 h-8 text-white hover:bg-blue-600 transition-colors" title="Voir">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                    </a>
+                                    <a href="{{ route('articles.edit', $article) }}" class="inline-flex items-center justify-center rounded-lg bg-amber-500 w-8 h-8 text-white hover:bg-amber-600 transition-colors" title="Modifier">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/><path d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                    </a>
+                                    <form method="POST" action="{{ route('articles.destroy', $article) }}" onsubmit="return confirm('Confirmer la suppression ?')" style="display: inline;">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-red-500 w-8 h-8 text-white hover:bg-red-600 transition-colors" title="Supprimer">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-9l-1 1H5v2h14V4z"/></svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @endforeach

@@ -17,7 +17,21 @@ class BonLivraisonController extends Controller
     {
         $query = BonLivraison::with('client')->orderByDesc('date');
         if ($request->filled('statut')) {
-            $query->where('statut', $request->statut);
+            $statut = $request->statut;
+            // Normalize the statut value (handle both 'annule' and 'annulé', and 'valide' and 'validé')
+            if (in_array($statut, ['annule', 'annulé'])) {
+                $query->where(function($q) {
+                    $q->where('statut', 'annule')
+                      ->orWhere('statut', 'annulé');
+                });
+            } elseif (in_array($statut, ['valide', 'validé'])) {
+                $query->where(function($q) {
+                    $q->where('statut', 'valide')
+                      ->orWhere('statut', 'validé');
+                });
+            } else {
+                $query->where('statut', $statut);
+            }
         }
         $bonsLivraison = $query->paginate(15)->withQueryString();
         return view('bon-livraison.index', compact('bonsLivraison'));
@@ -81,7 +95,7 @@ class BonLivraisonController extends Controller
         $validated = $request->validate([
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
-            'statut' => 'required|in:en_attente,livre,annule',
+            'statut' => 'required|in:en_attente,livre,validé,annule',
             'lignes' => 'required|array',
             'lignes.*.designation' => 'required|string',
             'lignes.*.quantite' => 'required|numeric|min:0.01',

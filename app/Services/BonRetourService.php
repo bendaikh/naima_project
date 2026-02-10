@@ -67,7 +67,7 @@ class BonRetourService
         // STOCK: Record stock movements (increment due to return)
         $bonRetour->incrementStock();
 
-        // Handle invoice updates based on payment status
+        // Handle avoir/invoice updates
         if ($bonRetour->facture) {
             if ($bonRetour->facture->isPaid()) {
                 // CASE B: Invoice PAID → Create avoir (financial correction)
@@ -77,6 +77,9 @@ class BonRetourService
                 // Formula: Total delivered − Total returned
                 $this->factureService->recalculateForUnpaidInvoice($bonRetour->facture);
             }
+        } else {
+            // CASE C: No invoice yet → Create avoir for customer credit
+            $this->avoirService->createAvoirFromReturn($bonRetour);
         }
 
         $params->increment('prochain_numero_bon_retour');

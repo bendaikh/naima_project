@@ -46,7 +46,8 @@
                     <select name="statut" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                         <option value="en_attente" {{ $bonLivraison->statut === 'en_attente' ? 'selected' : '' }}>En attente</option>
                         <option value="livre" {{ $bonLivraison->statut === 'livre' ? 'selected' : '' }}>Livré</option>
-                        <option value="annule" {{ $bonLivraison->statut === 'annule' ? 'selected' : '' }}>Annulé</option>
+                        <option value="validé" {{ $bonLivraison->statut === 'validé' ? 'selected' : '' }}>Validé</option>
+                        <option value="annule" {{ ($bonLivraison->statut === 'annule' || $bonLivraison->statut === 'annulé') ? 'selected' : '' }}>Annulé</option>
                     </select>
                     @error('statut') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>

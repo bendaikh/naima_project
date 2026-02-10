@@ -8,9 +8,20 @@ use Illuminate\View\View;
 
 class ArticleController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $articles = Article::paginate(15);
+        $query = Article::query();
+        
+        if ($request->filled('recherche')) {
+            $recherche = $request->recherche;
+            $query->where(function($q) use ($recherche) {
+                $q->where('nom', 'like', "%{$recherche}%")
+                  ->orWhere('description', 'like', "%{$recherche}%")
+                  ->orWhere('categorie', 'like', "%{$recherche}%");
+            });
+        }
+        
+        $articles = $query->paginate(15)->withQueryString();
         return view('articles.index', compact('articles'));
     }
 

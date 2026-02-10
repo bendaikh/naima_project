@@ -14,9 +14,21 @@ class DevisController extends Controller
     public function index(Request $request): View
     {
         $query = Devis::with('client')->orderByDesc('date');
+        
         if ($request->filled('statut')) {
             $query->where('statut', $request->statut);
         }
+        
+        if ($request->filled('recherche')) {
+            $recherche = $request->recherche;
+            $query->where(function($q) use ($recherche) {
+                $q->where('numero', 'like', "%{$recherche}%")
+                  ->orWhereHas('client', function($q) use ($recherche) {
+                      $q->where('nom_raison_sociale', 'like', "%{$recherche}%");
+                  });
+            });
+        }
+        
         $devis = $query->paginate(15)->withQueryString();
         return view('devis.index', compact('devis'));
     }

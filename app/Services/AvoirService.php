@@ -12,20 +12,13 @@ class AvoirService
 {
     /**
      * Create an avoir for a returned bon de retour
-     * Only creates avoir if invoice is already paid (CASE 2)
+     * Creates avoir for customer credit (whether or not invoice exists/is paid)
      *
      * @param BonRetour $bonRetour
-     * @return Avoir|null
+     * @return Avoir
      */
-    public function createAvoirFromReturn(BonRetour $bonRetour): ?Avoir
+    public function createAvoirFromReturn(BonRetour $bonRetour): Avoir
     {
-        // Avoir can only be created if:
-        // 1. Bon retour is linked to a facture
-        // 2. The facture is already paid
-        if (!$bonRetour->facture || !$bonRetour->facture->isPaid()) {
-            return null;
-        }
-
         // Generate avoir numero
         $numero = $this->generateAvoirNumero();
 
@@ -43,7 +36,7 @@ class AvoirService
             'tva' => $avoirData['tva'],
             'montant_ttc' => $avoirData['montant_ttc'],
             'statut' => 'brouillon',
-            'description' => "Avoir suite à retour de {$bonRetour->numero()}",
+            'description' => "Avoir suite à retour de {$bonRetour->numero}",
         ]);
 
         // Create avoir lines from bon retour lines
@@ -58,28 +51,43 @@ class AvoirService
     private function calculateAvoirAmounts(BonRetour $bonRetour): array
     {
         $montantHt = 0;
-        $montantTtc = 0;
+        $tauxTva = 0.20; // Default 20% TVA
 
-        // Get the original invoice lines to match pricing
-        $factureId = $bonRetour->facture_id;
-        $facture = Facture::find($factureId);
+        // Try to get pricing from facture if it exists
+        if ($bonRetour->facture) {
+            $facture = $bonRetour->facture;
+            $tauxTva = $facture->tva / 100;
 
-        // Calculate amount for each returned line
-        foreach ($bonRetour->lignes as $retourLine) {
-            // Find corresponding invoice line to get the price
-            $invoiceLine = $facture->lignes()
-                ->where('designation', $retourLine->designation)
-                ->first();
+            // Calculate amount for each returned line
+            foreach ($bonRetour->lignes as $retourLine) {
+                // Find corresponding invoice line to get the price
+                $invoiceLine = $facture->lignes()
+                    ->where('designation', $retourLine->designation)
+                    ->first();
 
-            if ($invoiceLine) {
-                // Calculate amount for this returned quantity
-                $lineAmount = $retourLine->quantite * $invoiceLine->prix_unitaire;
-                $montantHt += $lineAmount;
+                if ($invoiceLine) {
+                    // Calculate amount for this returned quantity
+                    $lineAmount = $retourLine->quantite * $invoiceLine->prix_unitaire;
+                    $montantHt += $lineAmount;
+                }
+            }
+        } else {
+            // No facture - get prices from articles if available
+            foreach ($bonRetour->lignes as $retourLine) {
+                // Try to find article by designation
+                $article = \App\Models\Article::where('nom', $retourLine->designation)->first();
+                if ($article) {
+                    $lineAmount = $retourLine->quantite * $article->prix_vente;
+                    $montantHt += $lineAmount;
+                } else {
+                    // If no article found, assume minimum price (can be updated later)
+                    $lineAmount = $retourLine->quantite * 0;
+                    $montantHt += $lineAmount;
+                }
             }
         }
 
-        // Calculate TVA and TTC based on facture TVA rate
-        $tauxTva = $facture->tva / 100;
+        // Calculate TVA and TTC
         $tva = $montantHt * $tauxTva;
         $montantTtc = $montantHt + $tva;
 
@@ -98,18 +106,32 @@ class AvoirService
         $facture = $bonRetour->facture;
 
         foreach ($bonRetour->lignes as $retourLine) {
-            // Find corresponding invoice line
-            $invoiceLine = $facture->lignes()
-                ->where('designation', $retourLine->designation)
-                ->first();
+            $prixUnitaire = 0;
 
-            if ($invoiceLine) {
+            if ($facture) {
+                // Find corresponding invoice line
+                $invoiceLine = $facture->lignes()
+                    ->where('designation', $retourLine->designation)
+                    ->first();
+
+                if ($invoiceLine) {
+                    $prixUnitaire = $invoiceLine->prix_unitaire;
+                }
+            } else {
+                // Try to find article price
+                $article = \App\Models\Article::where('nom', $retourLine->designation)->first();
+                if ($article) {
+                    $prixUnitaire = $article->prix_vente;
+                }
+            }
+
+            if ($prixUnitaire > 0) {
                 AvoirLigne::create([
                     'avoir_id' => $avoir->id,
                     'designation' => $retourLine->designation,
                     'quantite' => $retourLine->quantite,
-                    'prix_unitaire' => $invoiceLine->prix_unitaire,
-                    'montant_ht' => $retourLine->quantite * $invoiceLine->prix_unitaire,
+                    'prix_unitaire' => $prixUnitaire,
+                    'montant_ht' => $retourLine->quantite * $prixUnitaire,
                 ]);
             }
         }

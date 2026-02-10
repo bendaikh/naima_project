@@ -19,9 +19,25 @@ class BonRetourController extends Controller
     /**
      * Display all returns
      */
-    public function index()
+    public function index(Request $request)
     {
-        $bonsRetour = BonRetour::with('client', 'bonLivraison', 'lignes')->paginate(15);
+        $query = BonRetour::with('client', 'bonLivraison', 'lignes');
+        
+        if ($request->filled('recherche')) {
+            $recherche = $request->recherche;
+            $query->where(function($q) use ($recherche) {
+                $q->where('numero', 'like', "%{$recherche}%")
+                  ->orWhere('motif', 'like', "%{$recherche}%")
+                  ->orWhereHas('client', function($q) use ($recherche) {
+                      $q->where('nom_raison_sociale', 'like', "%{$recherche}%");
+                  })
+                  ->orWhereHas('bonLivraison', function($q) use ($recherche) {
+                      $q->where('numero', 'like', "%{$recherche}%");
+                  });
+            });
+        }
+        
+        $bonsRetour = $query->paginate(15)->withQueryString();
         return view('bon-retour.index', compact('bonsRetour'));
     }
 

@@ -47,9 +47,13 @@
         <div class="rounded-lg border border-slate-200 bg-white p-6 shadow">
             <p class="text-sm font-medium text-slate-600">Facture</p>
             <p class="text-lg font-semibold text-slate-800 mt-2">
-                <a href="{{ route('factures.show', $avoir->facture->id) }}" class="text-blue-600 hover:underline">
-                    {{ $avoir->facture->numero }}
-                </a>
+                @if($avoir->facture)
+                    <a href="{{ route('factures.show', $avoir->facture->id) }}" class="text-blue-600 hover:underline">
+                        {{ $avoir->facture->numero }}
+                    </a>
+                @else
+                    <span class="text-slate-500">-</span>
+                @endif
             </p>
         </div>
 
