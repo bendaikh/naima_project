@@ -3,11 +3,24 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('stock_mouvements')) {
+            // Table already exists, try to add the foreign key if missing
+            try {
+                Schema::table('stock_mouvements', function (Blueprint $table) {
+                    $table->foreign('article_id')->references('id')->on('articles')->onDelete('cascade');
+                });
+            } catch (\Exception $e) {
+                // Foreign key might already exist, ignore
+            }
+            return;
+        }
+
         Schema::create('stock_mouvements', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('article_id');
