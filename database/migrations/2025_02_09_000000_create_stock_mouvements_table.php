@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('stock_mouvements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('article_id')->constrained('articles')->cascadeOnDelete();
+            $table->unsignedBigInteger('article_id');
             $table->enum('type', ['entree', 'sortie']); // Entrée (IN) or Sortie (OUT)
             $table->decimal('quantite', 10, 2);
             $table->string('reference_type')->nullable(); // BonLivraison, BonRetour, Ajustement, etc.
@@ -27,6 +27,9 @@ return new class extends Migration
             $table->index('reference_type');
             $table->index('date');
             $table->index(['article_id', 'date']);
+
+            // Foreign key constraint
+            $table->foreign('article_id')->references('id')->on('articles')->onDelete('cascade');
         });
     }
 
