@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\Client;
 use App\Models\Devis;
 use App\Models\Facture;
@@ -13,6 +14,7 @@ class DashboardController extends Controller
 {
     public function __invoke(Request $request): View
     {
+        // General metrics
         $nombreClients = Client::count();
         $nombreFournisseurs = Fournisseur::count();
         $totalDevis = Devis::count();
@@ -20,6 +22,29 @@ class DashboardController extends Controller
         $chiffreAffaires = Facture::where('statut', 'payee')->sum('total_ttc');
         $facturesImpayees = Facture::whereIn('statut', ['non_payee', 'partiellement_payee'])->sum('total_ttc');
         $nouveauxClientsCeMois = Client::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count();
+
+        // Electronics-specific metrics
+        $totalArticles = Article::count();
+        $stockTotal = Article::sum('quantite_stock');
+        $articlesEnStock = Article::where('quantite_stock', '>', 0)->count();
+        $articlesEnRupture = Article::where('quantite_stock', '<=', 0)->count();
+        $valeurStockTotal = Article::selectRaw('SUM(quantite_stock * prix_achat) as total')->first()->total ?? 0;
+        
+        // Best selling products (by quantity sold)
+        $meilleursProduits = Article::with('bonLivraisonLignes')
+            ->get()
+            ->map(function ($article) {
+                $quantiteSold = $article->bonLivraisonLignes->sum('quantite');
+                return [
+                    'nom' => $article->nom,
+                    'quantite' => $quantiteSold,
+                    'prix' => $article->prix_vente,
+                ];
+            })
+            ->filter(fn ($p) => $p['quantite'] > 0)
+            ->sortByDesc('quantite')
+            ->take(5)
+            ->values();
 
         $moisLabels = ['JAN', 'FÉV', 'MAR', 'AVR', 'MAI', 'JUIN', 'JUIL', 'AOÛT', 'SEPT', 'OCT', 'NOV', 'DÉC'];
         $debut = now()->subMonths(5)->startOfMonth();
@@ -78,6 +103,13 @@ class DashboardController extends Controller
             'nouveauxClientsCeMois' => $nouveauxClientsCeMois,
             'chartData' => $chartData,
             'activites' => $activites,
+            // Electronics metrics
+            'totalArticles' => $totalArticles,
+            'stockTotal' => $stockTotal,
+            'articlesEnStock' => $articlesEnStock,
+            'articlesEnRupture' => $articlesEnRupture,
+            'valeurStockTotal' => $valeurStockTotal,
+            'meilleursProduits' => $meilleursProduits,
         ]);
     }
 }
