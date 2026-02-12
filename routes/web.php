@@ -63,4 +63,9 @@ Route::middleware('auth')->group(function () {
     Route::get('rapports', [\App\Http\Controllers\RapportController::class, 'index'])->name('rapports.index');
     Route::get('parametres', [\App\Http\Controllers\ParametresController::class, 'index'])->name('parametres.index');
     Route::put('parametres', [\App\Http\Controllers\ParametresController::class, 'update'])->name('parametres.update');
+
+    // Categories management
+    Route::post('categories', [\App\Http\Controllers\ParametresController::class, 'storeCategory'])->name('categories.store');
+    Route::put('categories/{categorie}', [\App\Http\Controllers\ParametresController::class, 'updateCategory'])->name('categories.update');
+    Route::delete('categories/{categorie}', [\App\Http\Controllers\ParametresController::class, 'deleteCategory'])->name('categories.destroy');
 });

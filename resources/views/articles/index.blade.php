@@ -16,10 +16,22 @@
         <div class="rounded-lg bg-[#E8F5E9] p-4 text-sm text-[#2E7D32] border-l-4 border-[#4CAF50]">{{ session('success') }}</div>
     @endif
 
-    <div class="rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm">
-        <form method="get" class="flex gap-4">
-            <input type="search" name="recherche" value="{{ request('recherche') }}" placeholder="Rechercher un article..." class="flex-1 rounded-lg border border-[#E5E7EB] px-4 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-            <button type="submit" class="rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-medium text-white hover:bg-[#1557C7] transition-colors">Rechercher</button>
+    <div class="rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm space-y-4">
+        <form method="get" class="space-y-4">
+            <div class="flex gap-4">
+                <input type="search" name="recherche" value="{{ request('recherche') }}" placeholder="Rechercher un article..." class="flex-1 rounded-lg border border-[#E5E7EB] px-4 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                <button type="submit" class="rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-medium text-white hover:bg-[#1557C7] transition-colors">Rechercher</button>
+            </div>
+
+            <div>
+                <label for="categorie_id" class="block text-sm font-medium text-[#374151] mb-2">Filtrer par catégorie</label>
+                <select name="categorie_id" id="categorie_id" onchange="this.form.submit()" class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                    <option value="">-- Toutes les catégories --</option>
+                    @foreach(\App\Models\Categorie::all() as $cat)
+                        <option value="{{ $cat->id }}" {{ request('categorie_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nom }}</option>
+                    @endforeach
+                </select>
+            </div>
         </form>
     </div>
 
@@ -32,7 +44,9 @@
             <table class="w-full">
                 <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                     <tr>
+                        <th class="px-6 py-3 text-center text-sm font-semibold text-[#374151]">Image</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-[#374151]">Nom</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-[#374151]">Catégorie</th>
                         <th class="px-6 py-3 text-left text-sm font-semibold text-[#374151]">Description</th>
                         <th class="px-6 py-3 text-right text-sm font-semibold text-[#374151]">Prix de vente</th>
                         <th class="px-6 py-3 text-right text-sm font-semibold text-[#374151]">Stock</th>
@@ -42,8 +56,24 @@
                 <tbody class="divide-y divide-[#E5E7EB]">
                     @foreach($articles as $article)
                         <tr class="hover:bg-[#F9FAFB]">
+                            <td class="px-6 py-4 text-center">
+                                @if($article->image)
+                                    <img src="{{ asset('storage/' . $article->image) }}" alt="{{ $article->nom }}" class="h-12 w-12 rounded-lg object-cover border border-[#E5E7EB]">
+                                @else
+                                    <div class="h-12 w-12 rounded-lg bg-[#F3F4F6] flex items-center justify-center">
+                                        <svg class="w-6 h-6 text-[#D1D5DB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </div>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 text-sm font-medium text-[#1F2937]">{{ $article->nom }}</td>
-                            <td class="px-6 py-4 text-sm text-[#6B7280]">{{ Str::limit($article->description, 50) }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                <span class="inline-flex items-center rounded-full bg-[#DBEAFE] px-3 py-1 text-xs font-semibold text-[#1E40AF]">
+                                    {{ $article->categorie?->nom ?? 'N/A' }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-[#6B7280]">{{ Str::limit($article->description, 40) }}</td>
                             <td class="px-6 py-4 text-right text-sm font-medium text-[#1F2937]">{{ number_format($article->prix_vente, 2, ',', ' ') }} DH</td>
                             <td class="px-6 py-4 text-right">
                                 <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium

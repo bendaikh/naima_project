@@ -6,7 +6,7 @@
 <div class="max-w-2xl space-y-6">
     <h1 class="text-2xl font-semibold text-slate-800">Créer un article</h1>
     
-    <form method="POST" action="{{ route('articles.store') }}" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm space-y-4">
+    <form method="POST" action="{{ route('articles.store') }}" enctype="multipart/form-data" class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm space-y-4">
         @csrf
 
         <div>
@@ -16,9 +16,14 @@
         </div>
 
         <div>
-            <label for="categorie" class="block text-sm font-medium text-slate-700">Catégorie *</label>
-            <input type="text" name="categorie" id="categorie" value="{{ old('categorie') }}" required class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-            @error('categorie') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            <label for="categorie_id" class="block text-sm font-medium text-slate-700">Catégorie *</label>
+            <select name="categorie_id" id="categorie_id" required class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <option value="">-- Sélectionner une catégorie --</option>
+                @foreach(\App\Models\Categorie::all() as $cat)
+                    <option value="{{ $cat->id }}" {{ old('categorie_id') == $cat->id ? 'selected' : '' }}>{{ $cat->nom }}</option>
+                @endforeach
+            </select>
+            @error('categorie_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 
         <div>
@@ -139,9 +144,18 @@
         </div>
 
         <div>
-            <label for="image_path" class="block text-sm font-medium text-slate-700">Chemin de l'image</label>
-            <input type="text" name="image_path" id="image_path" value="{{ old('image_path') }}" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-            @error('image_path') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            <label for="image" class="block text-sm font-medium text-slate-700">Image du produit</label>
+            <div class="mt-2">
+                <input type="file" name="image" id="image" accept="image/*" class="block w-full text-sm text-slate-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-100">
+                <p class="text-xs text-slate-600 mt-2">Formats acceptés: JPG, PNG, GIF (max 5 MB)</p>
+            </div>
+            @error('image') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            <div id="imagePreview" class="mt-4"></div>
         </div>
 
         <div class="flex gap-3 pt-4">
@@ -167,6 +181,22 @@ function syncStock() {
 document.getElementById('quantite').addEventListener('change', function() {
     if (document.getElementById('quantite_stock').value === '') {
         document.getElementById('quantite_stock').value = this.value;
+    }
+});
+
+// Image preview
+document.getElementById('image').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('imagePreview');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.innerHTML = `<div class="mt-4"><p class="text-sm text-slate-600 mb-2">Aperçu:</p><img src="${e.target.result}" class="max-h-48 rounded-lg border border-slate-300"></div>`;
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.innerHTML = '';
     }
 });
 </script>

@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Article extends Model
 {
     protected $fillable = [
         'nom',
-        'categorie',
+        'categorie_id',
         'description',
         'prix_vente',
         'prix_achat',
@@ -19,7 +20,7 @@ class Article extends Model
         'numero_facture',
         'compte_revenu',
         'compte_depense',
-        'image_path',
+        'image',
         'entrepot',
         'ugs',
         'impot',
@@ -32,6 +33,11 @@ class Article extends Model
         'quantite_stock' => 'decimal:2',
         'impot' => 'decimal:2',
     ];
+
+    public function categorie(): BelongsTo
+    {
+        return $this->belongsTo(Categorie::class);
+    }
 
     public function bonLivraisonLignes(): HasMany
     {
