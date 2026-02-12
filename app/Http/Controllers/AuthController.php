@@ -20,7 +20,33 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Log detailed debugging
+        \Log::info('Login attempt received', [
+            'email' => $credentials['email'],
+            'password_provided' => !empty($credentials['password']),
+            'password_length' => strlen($credentials['password'] ?? ''),
+            'remember' => $request->boolean('remember'),
+            'request_method' => $request->method(),
+            'csrf_token_present' => $request->has('_token'),
+        ]);
+
+        // Check if user exists in database
+        $userExists = \App\Models\User::where('email', $credentials['email'])->exists();
+        \Log::info('User lookup', [
+            'email' => $credentials['email'],
+            'exists' => $userExists,
+        ]);
+
+        $attemptResult = Auth::attempt($credentials, $request->boolean('remember'));
+        
+        \Log::info('Auth attempt result', [
+            'email' => $credentials['email'],
+            'result' => $attemptResult ? 'success' : 'failed',
+            'auth_check' => Auth::check(),
+            'authenticated_user' => Auth::user()?->email ?? 'none',
+        ]);
+
+        if ($attemptResult) {
             $request->session()->regenerate();
             return redirect()->intended(route('dashboard'));
         }
