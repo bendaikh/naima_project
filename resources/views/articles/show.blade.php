@@ -7,7 +7,7 @@
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-3xl font-bold text-slate-800">{{ $article->nom ?? 'Article' }}</h1>
-            <p class="text-sm text-slate-600 mt-1">{{ $article->categorie }}</p>
+            <p class="text-sm text-slate-600 mt-1">{{ $article->categorie?->nom ?? 'Sans catégorie' }}</p>
         </div>
         <div class="flex gap-2">
             <a href="{{ route('articles.edit', $article) }}" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">Modifier</a>
