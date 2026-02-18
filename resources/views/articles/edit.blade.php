@@ -154,10 +154,13 @@
 
         <div>
             <label for="image" class="block text-sm font-medium text-slate-700">Image du produit</label>
+            <input type="hidden" name="remove_image" id="remove_image" value="0">
+            <input type="hidden" name="stay_on_edit" id="stay_on_edit" value="0">
             @if($article->image)
-                <div class="mt-2 mb-4">
+                <div id="currentImageBlock" class="mt-2 mb-4">
                     <p class="text-sm text-slate-600 mb-2">Image actuelle:</p>
-                    <img src="{{ asset('storage/' . $article->image) }}" alt="{{ $article->nom }}" class="max-h-32 rounded-lg border border-slate-300">
+                    <img src="/storage/{{ $article->image }}" alt="{{ $article->nom }}" class="max-h-32 rounded-lg border border-slate-300">
+                    <p id="removeImageHint" class="mt-2 text-xs text-slate-500 hidden">L'image actuelle sera supprimée.</p>
                 </div>
             @endif
             <div class="mt-2">
@@ -170,6 +173,12 @@
                 <p class="text-xs text-slate-600 mt-2">Formats acceptés: JPG, PNG, GIF (max 5 MB)</p>
             </div>
             @error('image') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            <div class="mt-3 flex items-center gap-3">
+                <button type="button" id="imageRemoveBtn" class="rounded-lg border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-100">
+                    Supprimer l'image
+                </button>
+                <span id="imageRemoveHint" class="text-xs text-slate-500"></span>
+            </div>
             <div id="imagePreview" class="mt-4"></div>
         </div>
 
@@ -181,20 +190,97 @@
 </div>
 
 <script>
-// Image preview
-document.getElementById('image').addEventListener('change', function(e) {
+const removeImageInput = document.getElementById('remove_image');
+const currentImageBlock = document.getElementById('currentImageBlock');
+const removeImageHint = document.getElementById('removeImageHint');
+const imageInput = document.getElementById('image');
+const imageRemoveBtn = document.getElementById('imageRemoveBtn');
+const imageRemoveHint = document.getElementById('imageRemoveHint');
+const stayOnEditInput = document.getElementById('stay_on_edit');
+const imageForm = imageRemoveBtn ? imageRemoveBtn.closest('form') : null;
+
+function resetSelectedImage() {
+    imageInput.value = '';
+    document.getElementById('imagePreview').innerHTML = '';
+    if (imageRemoveHint) {
+        imageRemoveHint.textContent = '';
+    }
+}
+
+function syncImageRemoveButton() {
+    if (!imageRemoveBtn) {
+        return;
+    }
+    const hasSelection = imageInput && imageInput.files && imageInput.files.length > 0;
+    const hasCurrentImage = !!currentImageBlock;
+    if (!hasSelection && !hasCurrentImage) {
+        imageRemoveBtn.setAttribute('disabled', 'disabled');
+        imageRemoveBtn.classList.add('opacity-60', 'cursor-not-allowed');
+    } else {
+        imageRemoveBtn.removeAttribute('disabled');
+        imageRemoveBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+    }
+}
+
+if (imageRemoveBtn) {
+    imageRemoveBtn.addEventListener('click', function() {
+        const hasSelection = imageInput && imageInput.files && imageInput.files.length > 0;
+        if (hasSelection) {
+            resetSelectedImage();
+            if (imageRemoveHint) {
+                imageRemoveHint.textContent = "Image sélectionnée supprimée.";
+            }
+            syncImageRemoveButton();
+            return;
+        }
+
+        if (currentImageBlock && removeImageInput) {
+            removeImageInput.value = '1';
+            if (stayOnEditInput) {
+                stayOnEditInput.value = '1';
+            }
+            if (removeImageHint) {
+                removeImageHint.classList.remove('hidden');
+            }
+            if (imageForm) {
+                if (typeof imageForm.requestSubmit === 'function') {
+                    imageForm.requestSubmit();
+                } else {
+                    imageForm.submit();
+                }
+            }
+        }
+    });
+}
+
+imageInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     const preview = document.getElementById('imagePreview');
     
     if (file) {
+        if (imageRemoveHint) {
+            imageRemoveHint.textContent = file.name;
+        }
+        if (removeImageInput) {
+            removeImageInput.value = '0';
+        }
+        if (currentImageBlock) {
+            currentImageBlock.classList.remove('opacity-70');
+        }
+        if (removeImageHint) {
+            removeImageHint.classList.add('hidden');
+        }
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = `<div class="mt-4"><p class="text-sm text-slate-600 mb-2">Aperçu de la nouvelle image:</p><img src="${e.target.result}" class="max-h-48 rounded-lg border border-slate-300"></div>`;
         };
         reader.readAsDataURL(file);
     } else {
-        preview.innerHTML = '';
+        resetSelectedImage();
     }
+    syncImageRemoveButton();
 });
+
+syncImageRemoveButton();
 </script>
 @endsection

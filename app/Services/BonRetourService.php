@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Article;
 use App\Models\BonLivraison;
 use App\Models\BonRetour;
 use App\Models\Facture;
@@ -113,7 +114,9 @@ class BonRetourService
     private function createLines(BonRetour $bonRetour, array $lignes): void
     {
         foreach ($lignes as $ligne) {
+            $article = Article::where('nom', $ligne['designation'])->first();
             $bonRetour->lignes()->create([
+                'article_id' => $article?->id,
                 'designation' => $ligne['designation'],
                 'quantite' => $ligne['quantite'],
             ]);

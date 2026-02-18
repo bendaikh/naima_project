@@ -155,6 +155,12 @@
                 <p class="text-xs text-slate-600 mt-2">Formats acceptés: JPG, PNG, GIF (max 5 MB)</p>
             </div>
             @error('image') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            <div class="mt-3 flex items-center gap-3">
+                <button type="button" id="clearImageBtn" class="rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-100" disabled>
+                    Supprimer l'image sélectionnée
+                </button>
+                <span id="clearImageHint" class="text-xs text-slate-500"></span>
+            </div>
             <div id="imagePreview" class="mt-4"></div>
         </div>
 
@@ -184,19 +190,36 @@ document.getElementById('quantite').addEventListener('change', function() {
     }
 });
 
+const imageInput = document.getElementById('image');
+const clearImageBtn = document.getElementById('clearImageBtn');
+const clearImageHint = document.getElementById('clearImageHint');
+
+function resetSelectedImage() {
+    imageInput.value = '';
+    document.getElementById('imagePreview').innerHTML = '';
+    clearImageBtn.setAttribute('disabled', 'disabled');
+    clearImageHint.textContent = '';
+}
+
+clearImageBtn.addEventListener('click', function() {
+    resetSelectedImage();
+});
+
 // Image preview
-document.getElementById('image').addEventListener('change', function(e) {
+imageInput.addEventListener('change', function(e) {
     const file = e.target.files[0];
     const preview = document.getElementById('imagePreview');
     
     if (file) {
+        clearImageBtn.removeAttribute('disabled');
+        clearImageHint.textContent = file.name;
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = `<div class="mt-4"><p class="text-sm text-slate-600 mb-2">Aperçu:</p><img src="${e.target.result}" class="max-h-48 rounded-lg border border-slate-300"></div>`;
         };
         reader.readAsDataURL(file);
     } else {
-        preview.innerHTML = '';
+        resetSelectedImage();
     }
 });
 </script>

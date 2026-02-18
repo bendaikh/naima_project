@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Article;
 use App\Models\BonLivraison;
 use App\Models\BonLivraisonLigne;
 use App\Models\Client;
@@ -44,15 +45,28 @@ class BonLivraisonController extends Controller
         $clientId = $request->get('client_id');
         $devisList = collect();
         if ($clientId) {
-            $devisList = Devis::where('client_id', $clientId)
+            $devisList = Devis::with('lignes')
+                ->where('client_id', $clientId)
                 ->where('statut', 'accepte')
                 ->orderByDesc('date')->get();
         }
+
+        $designations = $devisList
+            ->flatMap(fn($devis) => $devis->lignes->pluck('designation'))
+            ->filter()
+            ->unique()
+            ->values();
+
+        $articleImagesByName = $designations->isEmpty()
+            ? []
+            : Article::whereIn('nom', $designations)->pluck('image', 'nom')->toArray();
+
         return view('bon-livraison.create', [
             'bonLivraison' => new BonLivraison,
             'clients' => $clients,
             'devisList' => $devisList,
             'selectedClientId' => $clientId,
+            'articleImagesByName' => $articleImagesByName,
         ]);
     }
 
@@ -85,9 +99,26 @@ class BonLivraisonController extends Controller
 
     public function edit(BonLivraison $bonLivraison): View
     {
-        $bonLivraison->load('lignes');
+        $bonLivraison->load(['lignes.article', 'devis.lignes']);
         $clients = Client::orderBy('nom_raison_sociale')->get();
-        return view('bon-livraison.edit', compact('bonLivraison', 'clients'));
+        $designations = $bonLivraison->lignes->pluck('designation');
+        if ($bonLivraison->devis) {
+            $designations = $designations->merge($bonLivraison->devis->lignes->pluck('designation'));
+        }
+        $designations = $designations->filter()->unique()->values();
+
+        $articleData = Article::whereIn('nom', $designations)
+            ->get()
+            ->mapWithKeys(fn($article) => [
+                $article->nom => [
+                    'id' => $article->id,
+                    'image' => $article->image,
+                    'stock' => $article->quantite_stock,
+                ],
+            ])
+            ->toArray();
+
+        return view('bon-livraison.edit', compact('bonLivraison', 'clients', 'articleData'));
     }
 
     public function update(Request $request, BonLivraison $bonLivraison, BonLivraisonService $service)
@@ -110,8 +141,10 @@ class BonLivraisonController extends Controller
         // Delete existing lines and create new ones
         $bonLivraison->lignes()->delete();
         foreach ($validated['lignes'] as $ligne) {
+            $article = Article::where('nom', $ligne['designation'])->first();
             BonLivraisonLigne::create([
                 'bon_livraison_id' => $bonLivraison->id,
+                'article_id' => $article?->id,
                 'designation' => $ligne['designation'],
                 'quantite' => $ligne['quantite'],
             ]);
@@ -150,4 +183,3 @@ class BonLivraisonController extends Controller
         }
     }
 }
-

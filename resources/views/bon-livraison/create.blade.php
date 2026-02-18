@@ -3,7 +3,16 @@
 @section('title', 'Nouveau bon de livraison')
 
 @section('content')
-    <div class="max-w-4xl mx-auto space-y-6">
+    <style>
+        .article-preview img {
+            max-width: 100px;
+            max-height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    </style>
+
+    <div class="max-w-6xl mx-auto space-y-6">
         <h1 class="text-3xl font-bold text-[#1F2937]">Nouveau bon de livraison</h1>
 
         @if($errors->any())
@@ -35,10 +44,10 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-[#374151] mb-2">Commande (Devis accepté) *</label>
-                    <select name="devis_id" id="devis_id" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                    <select name="devis_id" id="devis_id" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]" onchange="loadDevisArticles()">
                         <option value="">Sélectionner un devis</option>
                         @foreach($devisList as $devis)
-                            <option value="{{ $devis->id }}" {{ old('devis_id') == $devis->id ? 'selected' : '' }}>
+                            <option value="{{ $devis->id }}" data-devis="{{ json_encode($devis) }}" {{ old('devis_id') == $devis->id ? 'selected' : '' }}>
                                 {{ $devis->numero }} ({{ $devis->date->format('d/m/Y') }})
                             </option>
                         @endforeach
@@ -51,6 +60,14 @@
                     @error('date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
+
+            <!-- Devis Image Preview -->
+            <div id="devis-image-container" class="hidden">
+                <h3 class="text-sm font-semibold text-[#1F2937] mb-3">Devis Signature</h3>
+                <div id="devis-image-preview" class="border border-[#E5E7EB] rounded-lg p-4 bg-[#F9FAFB]">
+                </div>
+            </div>
+
     <script>
         function reloadForClient() {
             const clientId = document.getElementById('client_id').value;
@@ -58,6 +75,117 @@
             url.searchParams.set('client_id', clientId);
             window.location.href = url.toString();
         }
+
+        // Store devis data
+        const devisData = {!! json_encode($devisList->keyBy('id')->map(function($d) use ($articleImagesByName) { 
+            return [
+                'numero' => $d->numero,
+                'signature_image' => $d->signature_image,
+                'lignes' => $d->lignes->map(function($l) use ($articleImagesByName) {
+                    return [
+                        'id' => $l->id,
+                        'designation' => $l->designation,
+                        'quantite' => $l->quantite,
+                        'article_id' => $l->article_id,
+                        'image' => $articleImagesByName[$l->designation] ?? null
+                    ];
+                })
+            ];
+        })) !!};
+
+        function loadDevisArticles() {
+            const devisId = document.getElementById('devis_id').value;
+            const container = document.getElementById('lignes-container');
+            const imageContainer = document.getElementById('devis-image-container');
+            const imagePreview = document.getElementById('devis-image-preview');
+
+            if (!devisId || !devisData[devisId]) {
+                container.innerHTML = getEmptyLigne(0);
+                imageContainer.classList.add('hidden');
+                return;
+            }
+
+            const devis = devisData[devisId];
+            
+            // Show devis image
+            if (devis.signature_image) {
+                imagePreview.innerHTML = `<img src="/storage/${devis.signature_image}" alt="Signature" style="max-width: 200px; max-height: 150px; border: 1px solid #E5E7EB; border-radius: 4px;">`;
+                imageContainer.classList.remove('hidden');
+            } else {
+                imageContainer.classList.add('hidden');
+            }
+
+            // Load articles
+            if (devis.lignes && devis.lignes.length > 0) {
+                container.innerHTML = '';
+                devis.lignes.forEach((ligne, index) => {
+                    container.appendChild(createLigneElement(index, ligne));
+                });
+            } else {
+                container.innerHTML = getEmptyLigne(0);
+            }
+        }
+
+        function createLigneElement(index, ligne = null) {
+            const div = document.createElement('div');
+            div.className = 'ligne-item grid grid-cols-12 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]';
+            
+            const imageHtml = ligne && ligne.image 
+                ? `<img src="/storage/${ligne.image}" alt="${ligne.designation}" style="max-width: 60px; max-height: 60px; object-fit: cover; border-radius: 4px;">`
+                : '<div class="bg-gray-200 w-16 h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>';
+            
+            div.innerHTML = `
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
+                    <div class="article-preview flex items-center justify-center border border-[#E5E7EB] rounded-lg p-2 bg-white">
+                        ${imageHtml}
+                    </div>
+                </div>
+                <div class="col-span-5">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
+                    <input type="text" name="lignes[${index}][designation]" value="${ligne?.designation || ''}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div class="col-span-3">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
+                    <input type="number" step="1" name="lignes[${index}][quantite]" value="${ligne?.quantite || ''}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div class="col-span-2 flex items-end">
+                    <button type="button" onclick="removeLigne(this)" class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors">Supprimer</button>
+                </div>
+            `;
+            return div;
+        }
+
+        function getEmptyLigne(index) {
+            const div = document.createElement('div');
+            div.className = 'ligne-item grid grid-cols-12 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]';
+            div.innerHTML = `
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
+                    <div class="bg-gray-200 w-full h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>
+                </div>
+                <div class="col-span-5">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
+                    <input type="text" name="lignes[${index}][designation]" placeholder="Nom du produit" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div class="col-span-3">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
+                    <input type="number" step="1" name="lignes[${index}][quantite]" placeholder="0" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div class="col-span-2 flex items-end">
+                    <button type="button" onclick="removeLigne(this)" class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors">Supprimer</button>
+                </div>
+            `;
+            return div;
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const devisId = document.getElementById('devis_id').value;
+            if (devisId) {
+                loadDevisArticles();
+            }
+        });
     </script>
 
             <!-- Articles Section -->
@@ -67,16 +195,20 @@
                     @php $ligneIndex = 0; @endphp
                     @if(old('lignes'))
                         @foreach(old('lignes') as $i => $ligne)
-                            <div class="ligne-item grid grid-cols-3 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]">
-                                <div>
+                            <div class="ligne-item grid grid-cols-12 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
+                                    <div class="bg-gray-200 w-full h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>
+                                </div>
+                                <div class="col-span-5">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                                     <input type="text" name="lignes[{{ $i }}][designation]" value="{{ $ligne['designation'] }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
-                                <div>
+                                <div class="col-span-3">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                                     <input type="number" step="1" name="lignes[{{ $i }}][quantite]" value="{{ $ligne['quantite'] }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
-                                <div class="flex items-end">
+                                <div class="col-span-2 flex items-end">
                                     <button type="button" onclick="removeLigne(this)" class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors">Supprimer</button>
                                 </div>
                             </div>
@@ -85,32 +217,48 @@
                     @elseif($devisList && $devisList->count() === 1)
                         @php $devis = $devisList->first(); @endphp
                         @foreach($devis->lignes as $ligne)
-                            <div class="ligne-item grid grid-cols-3 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]">
-                                <div>
+                        @php 
+                                $imagePath = $articleImagesByName[$ligne->designation] ?? null;
+                                $imageHtml = $imagePath
+                                    ? "<img src='/storage/{$imagePath}' alt='{$ligne->designation}' style='max-width: 60px; max-height: 60px; object-fit: cover; border-radius: 4px;'>"
+                                    : '<div class="bg-gray-200 w-16 h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>';
+                            @endphp
+                            <div class="ligne-item grid grid-cols-12 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
+                                    <div class="article-preview flex items-center justify-center border border-[#E5E7EB] rounded-lg p-2 bg-white">
+                                        {!! $imageHtml !!}
+                                    </div>
+                                </div>
+                                <div class="col-span-5">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                                     <input type="text" name="lignes[{{ $ligneIndex }}][designation]" value="{{ $ligne->designation }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
-                                <div>
+                                <div class="col-span-3">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                                     <input type="number" step="1" name="lignes[{{ $ligneIndex }}][quantite]" value="{{ $ligne->quantite }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
-                                <div class="flex items-end">
+                                <div class="col-span-2 flex items-end">
                                     <button type="button" onclick="removeLigne(this)" class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors">Supprimer</button>
                                 </div>
                             </div>
                             @php $ligneIndex++; @endphp
                         @endforeach
                     @else
-                        <div class="ligne-item grid grid-cols-3 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]">
-                            <div>
+                        <div class="ligne-item grid grid-cols-12 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
+                                <div class="bg-gray-200 w-full h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>
+                            </div>
+                            <div class="col-span-5">
                                 <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                                 <input type="text" name="lignes[0][designation]" placeholder="Nom du produit" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                             </div>
-                            <div>
+                            <div class="col-span-3">
                                 <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                                 <input type="number" step="1" name="lignes[0][quantite]" placeholder="0" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                             </div>
-                            <div class="flex items-end">
+                            <div class="col-span-2 flex items-end">
                                 <button type="button" onclick="removeLigne(this)" class="w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 transition-colors">Supprimer</button>
                             </div>
                         </div>
@@ -131,19 +279,11 @@
     </div>
 
     <script>
-        let ligneCount = 1;
+        let ligneCount = {{ $ligneIndex ?? 1 }};
 
         function addLigne() {
             const container = document.getElementById('lignes-container');
-            const template = container.firstElementChild.cloneNode(true);
-            
-            template.querySelectorAll('input').forEach(input => {
-                const name = input.name.replace(/\[\d+\]/, `[${ligneCount}]`);
-                input.name = name;
-                input.value = '';
-            });
-            
-            container.appendChild(template);
+            container.appendChild(getEmptyLigne(ligneCount));
             ligneCount++;
         }
 

@@ -21,6 +21,7 @@ class Devis extends Model
         'total_ht',
         'total_ttc',
         'statut',
+        'signature_image',
     ];
 
     protected function casts(): array

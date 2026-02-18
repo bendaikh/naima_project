@@ -107,11 +107,18 @@ class ArticleController extends Controller
             'entrepot' => 'nullable|string|max:255',
             'ugs' => 'nullable|string|max:255',
             'impot' => 'nullable|numeric|min:0',
+            'remove_image' => 'sometimes|boolean',
         ]);
+
+        $removeImage = $request->boolean('remove_image');
+        if ($removeImage && $article->image) {
+            \Storage::disk('public')->delete($article->image);
+            $validated['image'] = null;
+        }
 
         // Handle image upload
         if ($request->hasFile('image')) {
-            // Delete old image if exists
+            // Delete old image if exists (ignore if already removed)
             if ($article->image) {
                 \Storage::disk('public')->delete($article->image);
             }
@@ -120,6 +127,13 @@ class ArticleController extends Controller
         }
 
         $article->update($validated);
+
+        if ($request->boolean('stay_on_edit')) {
+            return redirect()
+                ->route('articles.edit', $article)
+                ->with('success', 'Article mis à jour avec succès.');
+        }
+
         return redirect()->route('articles.show', $article)->with('success', 'Article mis à jour avec succès.');
     }
 

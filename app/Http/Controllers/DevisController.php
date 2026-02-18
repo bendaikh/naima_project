@@ -47,6 +47,7 @@ class DevisController extends Controller
             'date' => 'required|date',
             'tva' => 'nullable|numeric|min:0|max:100',
             'articles_data' => 'nullable|json',
+            'signature_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $params = \App\Models\ParametresEntreprise::get();
@@ -73,6 +74,11 @@ class DevisController extends Controller
         }
         
         $validated['statut'] = 'brouillon';
+        
+        // Handle signature image upload
+        if ($request->hasFile('signature_image')) {
+            $validated['signature_image'] = $request->file('signature_image')->store('devis/signatures', 'public');
+        }
         
         // Remove articles_data from fillable update
         unset($validated['articles_data']);
@@ -106,7 +112,8 @@ class DevisController extends Controller
     {
         $devis->load('lignes');
         $clients = Client::orderBy('nom_raison_sociale')->get();
-        return view('devis.edit', compact('devis', 'clients'));
+        $articles = Article::orderBy('nom')->get();
+        return view('devis.edit', compact('devis', 'clients', 'articles'));
     }
 
     public function update(Request $request, Devis $devis)
@@ -116,8 +123,57 @@ class DevisController extends Controller
             'date' => 'required|date',
             'tva' => 'nullable|numeric|min:0|max:100',
             'statut' => 'required|in:brouillon,envoye,accepte,refuse',
+            'articles_data' => 'nullable|json',
+            'signature_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
-        $devis->update($validated);
+
+        $articlesData = [];
+        $hasArticlesData = $request->has('articles_data');
+        if ($validated['articles_data'] ?? null) {
+            $articlesData = json_decode($validated['articles_data'], true) ?? [];
+        }
+
+        $updateData = $validated;
+        unset($updateData['articles_data']);
+
+        if (!array_key_exists('tva', $updateData) || $updateData['tva'] === null) {
+            $updateData['tva'] = $devis->tva;
+        }
+
+        if ($request->hasFile('signature_image')) {
+            if ($devis->signature_image) {
+                \Storage::disk('public')->delete($devis->signature_image);
+            }
+            $updateData['signature_image'] = $request->file('signature_image')->store('devis/signatures', 'public');
+        }
+
+        if ($hasArticlesData) {
+            $totalHt = 0;
+            foreach ($articlesData as $article) {
+                $totalHt += floatval($article['total_ht'] ?? 0);
+            }
+            $updateData['total_ht'] = $totalHt;
+            $tvaRate = ($updateData['tva'] ?? 0) / 100;
+            $totalTva = $totalHt * $tvaRate;
+            $updateData['total_ttc'] = $totalHt + $totalTva;
+        }
+
+        $devis->update($updateData);
+
+        if ($hasArticlesData) {
+            $devis->lignes()->delete();
+            foreach ($articlesData as $article) {
+                DevisLigne::create([
+                    'devis_id' => $devis->id,
+                    'designation' => $article['designation'] ?? '',
+                    'quantite' => floatval($article['quantite'] ?? 0),
+                    'prix_unitaire' => floatval($article['prix_unitaire'] ?? 0),
+                    'tva' => $updateData['tva'] ?? 0,
+                    'total_ht' => floatval($article['total_ht'] ?? 0),
+                ]);
+            }
+        }
+
         return redirect()->route('devis.show', $devis)->with('success', 'Devis mis à jour.');
     }
 
@@ -176,4 +232,3 @@ class DevisController extends Controller
         return redirect()->route('devis.show', $devis)->with('error', 'Erreur lors de la conversion du devis.');
     }
 }
-

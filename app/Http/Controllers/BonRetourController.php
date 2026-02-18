@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\BonLivraison;
 use App\Models\BonRetour;
+use App\Models\Article;
 use App\Services\BonRetourService;
 use Illuminate\Http\Request;
 
@@ -46,10 +47,11 @@ class BonRetourController extends Controller
      */
     public function create()
     {
-        $bonsLivraison = BonLivraison::with('client')
+        $bonsLivraison = BonLivraison::with(['client', 'lignes.article', 'devis.lignes'])
             ->where('statut', '!=', 'cancelled')
             ->get();
-        return view('bon-retour.create', compact('bonsLivraison'));
+        $articleImagesByName = Article::pluck('image', 'nom')->toArray();
+        return view('bon-retour.create', compact('bonsLivraison', 'articleImagesByName'));
     }
 
     /**
@@ -90,8 +92,9 @@ class BonRetourController extends Controller
     public function edit(BonRetour $bonRetour)
     {
         $bonRetour->load('lignes');
-        $bonsLivraison = BonLivraison::with('client')->get();
-        return view('bon-retour.edit', compact('bonRetour', 'bonsLivraison'));
+        $bonsLivraison = BonLivraison::with(['client', 'lignes.article', 'devis.lignes'])->get();
+        $articleImagesByName = Article::pluck('image', 'nom')->toArray();
+        return view('bon-retour.edit', compact('bonRetour', 'bonsLivraison', 'articleImagesByName'));
     }
 
     /**

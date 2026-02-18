@@ -68,4 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::post('categories', [\App\Http\Controllers\ParametresController::class, 'storeCategory'])->name('categories.store');
     Route::put('categories/{categorie}', [\App\Http\Controllers\ParametresController::class, 'updateCategory'])->name('categories.update');
     Route::delete('categories/{categorie}', [\App\Http\Controllers\ParametresController::class, 'deleteCategory'])->name('categories.destroy');
+
+    // Purchase Module (Achats)
+    require __DIR__ . '/achats.php';
 });

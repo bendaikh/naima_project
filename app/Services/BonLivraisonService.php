@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\BonLivraison;
+use App\Models\Article;
 use App\Models\Devis;
 use App\Models\ParametresEntreprise;
 use Illuminate\Validation\ValidationException;
@@ -162,7 +163,9 @@ class BonLivraisonService
     private function createLines(BonLivraison $bonLivraison, array $lignes): void
     {
         foreach ($lignes as $ligne) {
+            $article = Article::where('nom', $ligne['designation'])->first();
             $bonLivraison->lignes()->create([
+                'article_id' => $article?->id,
                 'designation' => $ligne['designation'],
                 'quantite' => $ligne['quantite'],
             ]);

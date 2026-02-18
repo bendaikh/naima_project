@@ -34,6 +34,41 @@
                         </a>
                     </li>
 
+                    {{-- Achats Dropdown --}}
+                    <li>
+                        <button type="button" onclick="toggleAchats()" class="w-full flex items-center justify-between gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 {{ request()->routeIs('achats.*') ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                            <div class="flex items-center gap-4 flex-1">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg {{ request()->routeIs('achats.*') ? 'bg-gradient-to-br from-emerald-400 to-teal-500' : 'bg-slate-700' }}">
+                                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                                </div>
+                                <span class="tracking-wide">Achats</span>
+                            </div>
+                            <svg id="achats-arrow" class="h-4 w-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                        </button>
+                        
+                        {{-- Achats Submenu --}}
+                        <ul id="achats-menu" class="hidden space-y-2 pl-4 pt-2">
+                            <li>
+                                <a href="{{ route('achats.bon-de-commande.index') }}" class="flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 {{ request()->routeIs('achats.bon-de-commande.*') ? 'bg-emerald-500/20 text-emerald-200' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5' }}">
+                                    <span class="h-2 w-2 rounded-full {{ request()->routeIs('achats.bon-de-commande.*') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                                    <span>Bons de Commande</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('achats.bon-retour-fournisseur.index') }}" class="flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 {{ request()->routeIs('achats.bon-retour-fournisseur.*') ? 'bg-emerald-500/20 text-emerald-200' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5' }}">
+                                    <span class="h-2 w-2 rounded-full {{ request()->routeIs('achats.bon-retour-fournisseur.*') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                                    <span>Retours Fournisseurs</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('achats.avoir-fournisseur.index') }}" class="flex items-center gap-4 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200 {{ request()->routeIs('achats.avoir-fournisseur.*') ? 'bg-emerald-500/20 text-emerald-200' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5' }}">
+                                    <span class="h-2 w-2 rounded-full {{ request()->routeIs('achats.avoir-fournisseur.*') ? 'bg-emerald-400' : 'bg-slate-600' }}"></span>
+                                    <span>Avoirs Fournisseurs</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                     {{-- Gestion des utilisateurs --}}
                     <li>
                         <a href="{{ route('clients.index') }}" class="flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 {{ request()->routeIs('clients.*') ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
@@ -202,5 +237,26 @@
             </main>
         </div>
     </div>
+
+    <script>
+        function toggleAchats() {
+            const menu = document.getElementById('achats-menu');
+            const arrow = document.getElementById('achats-arrow');
+            
+            menu.classList.toggle('hidden');
+            arrow.style.transform = menu.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(-180deg)';
+        }
+
+        // Auto-expand Achats menu if we're on an achats route
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentRoute = '{{ request()->route()->getName() }}';
+            if (currentRoute.startsWith('achats.')) {
+                const menu = document.getElementById('achats-menu');
+                const arrow = document.getElementById('achats-arrow');
+                menu.classList.remove('hidden');
+                arrow.style.transform = 'rotate(-180deg)';
+            }
+        });
+    </script>
 </body>
 </html>
