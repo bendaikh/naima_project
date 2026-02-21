@@ -39,7 +39,12 @@
                     <select name="bon_livraison_id" id="bon_livraison_id" required class="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                         <option value="">Sélectionner un bon</option>
                         @foreach($bonsLivraison as $bon)
-                            <option value="{{ $bon->id }}" data-client="{{ $bon->client->nom_raison_sociale ?? 'N/A' }}" data-numero="{{ $bon->numero }}" data-date="{{ $bon->date->format('d/m/Y') }}" data-signature="{{ $bon->devis?->signature_image }}">
+                            <option value="{{ $bon->id }}"
+                                data-client="{{ $bon->client->nom_raison_sociale ?? 'N/A' }}"
+                                data-numero="{{ $bon->numero }}"
+                                data-date="{{ $bon->date->format('d/m/Y') }}"
+                                data-signature="{{ $bon->devis?->signature_image }}"
+                                {{ (string) old('bon_livraison_id', request('bonLivraison')) === (string) $bon->id ? 'selected' : '' }}>
                                 {{ $bon->numero }} - {{ $bon->client->nom_raison_sociale ?? 'N/A' }}
                             </option>
                         @endforeach

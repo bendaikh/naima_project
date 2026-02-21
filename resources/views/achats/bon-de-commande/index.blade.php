@@ -136,8 +136,6 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex px-3 py-1 rounded-full text-xs font-semibold
                                     @if($bon->status === 'DRAFT') bg-[#FEF3C7] text-[#92400E]
                                     @elseif($bon->status === 'CONFIRMED') bg-[#DBEAFE] text-[#1E40AF]
                                     @elseif($bon->status === 'RECEIVED') bg-[#DCFCE7] text-[#166534]
@@ -150,7 +148,9 @@
                                     @else {{ $bon->status }}
                                     @endif
                                 </span>
-                            </td>{ number_format($bon->getTotalAmount(), 2, ',', ' ') }} DH
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[#1860E1]">
+                                {{ number_format($bon->getTotalAmount(), 2, ',', ' ') }} DH
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2 flex flex-wrap gap-2">
                                 <a href="{{ route('achats.bon-de-commande.show', $bon) }}" class="text-[#1860E1] hover:text-[#1557C7] font-medium">Voir</a>
