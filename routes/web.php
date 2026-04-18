@@ -45,6 +45,26 @@ Route::middleware('auth')->group(function () {
         Route::get('facture/{facture}', [\App\Http\Controllers\AvoirController::class, 'getForFacture'])->name('getForFacture');
     });
 
+    // Banques routes
+    Route::resource('banques', \App\Http\Controllers\BanqueController::class);
+    
+    // Ecritures routes
+    Route::prefix('ecritures')->name('ecritures.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\EcritureController::class, 'index'])->name('index');
+        Route::get('/categories', [\App\Http\Controllers\EcritureController::class, 'categories'])->name('categories');
+        Route::get('/categories/create', [\App\Http\Controllers\EcritureController::class, 'createCategory'])->name('categories.create');
+        Route::post('/categories', [\App\Http\Controllers\EcritureController::class, 'storeCategory'])->name('categories.store');
+        Route::get('/create', [\App\Http\Controllers\EcritureController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\EcritureController::class, 'store'])->name('store');
+        Route::get('/{ecriture}', [\App\Http\Controllers\EcritureController::class, 'show'])->name('show');
+        Route::get('/{ecriture}/edit', [\App\Http\Controllers\EcritureController::class, 'edit'])->name('edit');
+        Route::put('/{ecriture}', [\App\Http\Controllers\EcritureController::class, 'update'])->name('update');
+        Route::delete('/{ecriture}', [\App\Http\Controllers\EcritureController::class, 'destroy'])->name('destroy');
+    });
+    
+    // Virement Interne routes
+    Route::resource('virement-interne', \App\Http\Controllers\VirementInterneController::class);
+
     // Bon de Retour routes
     Route::resource('bon-retour', \App\Http\Controllers\BonRetourController::class);
     Route::get('bon-retour/delivery/{deliveryId}', [\App\Http\Controllers\BonRetourController::class, 'getForDelivery'])->name('bon-retour.getForDelivery');

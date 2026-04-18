@@ -8,6 +8,8 @@
     <link href="https://fonts.bunny.net/css?family=instrument-sans:300,400,500,600,700,800" rel="stylesheet" />
     <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 font-sans text-slate-800 antialiased">
     <div class="flex">
@@ -147,6 +149,41 @@
                             </div>
                             <span class="tracking-wide">Avoir</span>
                         </a>
+                    </li>
+
+                    {{-- Banques | caisse (with submenu) --}}
+                    <li x-data="{ open: {{ request()->routeIs('banques.*') || request()->routeIs('ecritures.*') || request()->routeIs('virement-interne.*') ? 'true' : 'false' }} }">
+                        <button @click="open = !open" class="flex w-full items-center justify-between gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 {{ request()->routeIs('banques.*') || request()->routeIs('ecritures.*') || request()->routeIs('virement-interne.*') ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                            <div class="flex items-center gap-4">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg {{ request()->routeIs('banques.*') || request()->routeIs('ecritures.*') || request()->routeIs('virement-interne.*') ? 'bg-gradient-to-br from-emerald-400 to-teal-500' : 'bg-slate-700' }}">
+                                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                                </div>
+                                <span class="tracking-wide">Banques | caisse</span>
+                            </div>
+                            <svg class="h-4 w-4 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <ul x-show="open" x-collapse class="mt-2 space-y-1 pl-12">
+                            <li>
+                                <a href="{{ route('banques.index') }}" class="block rounded-lg px-4 py-2 text-sm transition-all duration-200 {{ request()->routeIs('banques.index') ? 'bg-emerald-500/20 text-white font-medium' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                    Liste compte
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('ecritures.index') }}" class="block rounded-lg px-4 py-2 text-sm transition-all duration-200 {{ request()->routeIs('ecritures.index') ? 'bg-emerald-500/20 text-white font-medium' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                    Liste écritures
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('ecritures.categories') }}" class="block rounded-lg px-4 py-2 text-sm transition-all duration-200 {{ request()->routeIs('ecritures.categories') ? 'bg-emerald-500/20 text-white font-medium' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                    Liste écritures/catégories
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('virement-interne.index') }}" class="block rounded-lg px-4 py-2 text-sm transition-all duration-200 {{ request()->routeIs('virement-interne.*') ? 'bg-emerald-500/20 text-white font-medium' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                                    Virement interne
+                                </a>
+                            </li>
+                        </ul>
                     </li>
 
                     {{-- Mouvements de Stock --}}
