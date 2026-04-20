@@ -23,10 +23,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('clients', \App\Http\Controllers\ClientController::class);
     Route::resource('fournisseurs', \App\Http\Controllers\FournisseurController::class)->except(['show']);
     Route::resource('devis', \App\Http\Controllers\DevisController::class)->parameter('devis', 'devis');
+    Route::get('devis/{devis}/print', [\App\Http\Controllers\DevisController::class, 'print'])->name('devis.print');
     Route::resource('factures', \App\Http\Controllers\FactureController::class);
+    Route::get('factures/{facture}/print', [\App\Http\Controllers\FactureController::class, 'print'])->name('factures.print');
     Route::post('factures/{facture}/mark-as-paid', [\App\Http\Controllers\FactureController::class, 'markAsPaid'])->name('factures.mark-as-paid');
     Route::resource('articles', \App\Http\Controllers\ArticleController::class);
     Route::resource('bon-livraison', \App\Http\Controllers\BonLivraisonController::class);
+    Route::get('bon-livraison/{bonLivraison}/print', [\App\Http\Controllers\BonLivraisonController::class, 'print'])->name('bon-livraison.print');
     Route::post('bon-livraison/{bonLivraison}/validate', [\App\Http\Controllers\BonLivraisonController::class, 'validateBon'])->name('bon-livraison.validate');
 
     // Devis status actions

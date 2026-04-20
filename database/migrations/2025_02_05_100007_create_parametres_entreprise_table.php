@@ -13,8 +13,11 @@ return new class extends Migration
             $table->string('nom')->nullable();
             $table->text('adresse')->nullable();
             $table->string('telephone')->nullable();
+            $table->string('fax')->nullable();
             $table->string('email')->nullable();
+            $table->string('website')->nullable();
             $table->string('logo')->nullable();
+            $table->text('footer_legal_text')->nullable();
             $table->decimal('tva_par_defaut', 5, 2)->default(20);
             $table->string('prefixe_devis')->default('DEV-');
             $table->string('prefixe_facture')->default('FAC-');

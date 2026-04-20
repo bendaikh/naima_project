@@ -182,4 +182,14 @@ class BonLivraisonController extends Controller
                 ->with('error', $e->getMessage());
         }
     }
+
+    /**
+     * Print a Bon de Livraison
+     */
+    public function print(BonLivraison $bonLivraison): View
+    {
+        $bonLivraison->load('client', 'lignes', 'devis');
+        $parametres = ParametresEntreprise::first();
+        return view('prints.bon-livraison', compact('bonLivraison', 'parametres'));
+    }
 }

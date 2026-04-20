@@ -14,13 +14,35 @@
     <div class="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm space-y-4">
         <h2 class="text-lg font-semibold text-[#1F2937]">Informations de l'entreprise</h2>
         
-        <form method="post" action="{{ route('parametres.update') }}" class="space-y-4">
+        <form method="post" action="{{ route('parametres.update') }}" class="space-y-4" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
             <div>
                 <label for="nom" class="block text-sm font-medium text-[#374151]">Nom</label>
                 <input type="text" name="nom" id="nom" value="{{ old('nom', $params->nom) }}" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+            </div>
+
+            <div>
+                <label for="logo" class="block text-sm font-medium text-[#374151]">Logo de l'entreprise</label>
+                <div class="mt-2 flex items-start gap-4">
+                    <div class="flex-shrink-0">
+                        <div id="logoPreview" class="w-32 h-32 border-2 border-dashed border-[#E5E7EB] rounded-lg flex items-center justify-center overflow-hidden bg-[#F9FAFB]">
+                            @if($params->logo && file_exists(public_path('storage/' . $params->logo)))
+                                <img src="{{ asset('storage/' . $params->logo) }}" alt="Logo" class="w-full h-full object-contain">
+                            @else
+                                <svg class="w-12 h-12 text-[#D1D5DB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" name="logo" id="logo" accept="image/*" onchange="previewLogo(event)" class="mt-1 block w-full text-sm text-[#6B7280] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#1860E1] file:text-white hover:file:bg-[#1557C7] file:cursor-pointer">
+                        <p class="mt-2 text-xs text-[#6B7280]">PNG, JPG, GIF, SVG jusqu'à 2 Mo</p>
+                        @error('logo') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
             </div>
 
             <div>
@@ -34,9 +56,26 @@
                     <input type="text" name="telephone" id="telephone" value="{{ old('telephone', $params->telephone) }}" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 </div>
                 <div>
+                    <label for="fax" class="block text-sm font-medium text-[#374151]">Fax</label>
+                    <input type="text" name="fax" id="fax" value="{{ old('fax', $params->fax) }}" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
                     <label for="email" class="block text-sm font-medium text-[#374151]">Email</label>
                     <input type="email" name="email" id="email" value="{{ old('email', $params->email) }}" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 </div>
+                <div>
+                    <label for="website" class="block text-sm font-medium text-[#374151]">Site Web</label>
+                    <input type="url" name="website" id="website" value="{{ old('website', $params->website) }}" placeholder="https://exemple.com" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+            </div>
+
+            <div>
+                <label for="footer_legal_text" class="block text-sm font-medium text-[#374151]">Texte légal du pied de page</label>
+                <textarea name="footer_legal_text" id="footer_legal_text" rows="3" placeholder="Ex: Capital social, numéro SIRET, conditions de paiement..." class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">{{ old('footer_legal_text', $params->footer_legal_text) }}</textarea>
+                <p class="mt-1 text-xs text-[#6B7280]">Ce texte apparaîtra en bas de toutes vos factures, devis, bons de livraison et bons de commande</p>
             </div>
 
             <hr class="my-4 border-[#E5E7EB]">
@@ -160,6 +199,18 @@
 </div>
 
 <script>
+function previewLogo(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const previewDiv = document.getElementById('logoPreview');
+            previewDiv.innerHTML = '<img src="' + e.target.result + '" alt="Logo Preview" class="w-full h-full object-contain">';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
 function editCategory(id, nom, description) {
     document.getElementById('editNom').value = nom;
     document.getElementById('editDescription').value = description;

@@ -114,6 +114,12 @@ class BonDeCommandeController extends Controller
         return view('achats.bon-de-commande.show', compact('bonDeCommande'));
     }
 
+    public function print(BonDeCommande $bonDeCommande): View
+    {
+        $bonDeCommande->load('fournisseur', 'lignes.article');
+        return view('prints.bon-de-commande', compact('bonDeCommande'));
+    }
+
     /**
      * Show the form for editing a purchase order
      */

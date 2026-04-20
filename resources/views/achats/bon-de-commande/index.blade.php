@@ -152,18 +152,31 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-[#1860E1]">
                                 {{ number_format($bon->getTotalAmount(), 2, ',', ' ') }} DH
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2 flex flex-wrap gap-2">
-                                <a href="{{ route('achats.bon-de-commande.show', $bon) }}" class="text-[#1860E1] hover:text-[#1557C7] font-medium">Voir</a>
-                                @if($bon->status === 'DRAFT')
-                                    <a href="{{ route('achats.bon-de-commande.edit', $bon) }}" class="text-[#F59E0B] hover:text-[#D97706] font-medium">Modifier</a>
-                                    <form action="{{ route('achats.bon-de-commande.confirm', $bon) }}" method="POST" class="inline">
-                                        @csrf
-                                        <button type="submit" class="text-[#10B981] hover:text-[#059669] font-medium">Confirmer</button>
-                                    </form>
-                                @endif
-                                @if(in_array($bon->status, ['CONFIRMED', 'RECEIVED']))
-                                    <a href="{{ route('achats.bon-de-commande.receive-form', $bon) }}" class="text-[#8B5CF6] hover:text-[#7C3AED] font-medium">Réceptionner</a>
-                                @endif
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <div class="flex gap-2">
+                                    <a href="{{ route('achats.bon-de-commande.show', $bon) }}" class="inline-flex items-center justify-center rounded-lg bg-blue-500 w-8 h-8 text-white hover:bg-blue-600 transition-colors" title="Voir">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                    </a>
+                                    <a href="{{ route('achats.bon-de-commande.print', $bon) }}" target="_blank" class="inline-flex items-center justify-center rounded-lg bg-gray-500 w-8 h-8 text-white hover:bg-gray-600 transition-colors" title="Imprimer">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                                    </a>
+                                    @if($bon->status === 'DRAFT')
+                                        <a href="{{ route('achats.bon-de-commande.edit', $bon) }}" class="inline-flex items-center justify-center rounded-lg bg-amber-500 w-8 h-8 text-white hover:bg-amber-600 transition-colors" title="Modifier">
+                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/><path d="M20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                        </a>
+                                        <form action="{{ route('achats.bon-de-commande.confirm', $bon) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-green-500 w-8 h-8 text-white hover:bg-green-600 transition-colors" title="Confirmer">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            </button>
+                                        </form>
+                                    @endif
+                                    @if(in_array($bon->status, ['CONFIRMED', 'RECEIVED']))
+                                        <a href="{{ route('achats.bon-de-commande.receive-form', $bon) }}" class="inline-flex items-center justify-center rounded-lg bg-purple-500 w-8 h-8 text-white hover:bg-purple-600 transition-colors" title="Réceptionner">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" /></svg>
+                                        </a>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach

@@ -97,6 +97,12 @@ class FactureController extends Controller
         return view('factures.show', compact('facture'));
     }
 
+    public function print(Facture $facture): View
+    {
+        $facture->load('client', 'devis', 'lignes', 'bonsLivraison');
+        return view('prints.facture', compact('facture'));
+    }
+
     public function edit(Facture $facture): View
     {
         $facture->load('lignes');

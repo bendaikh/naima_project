@@ -108,6 +108,12 @@ class DevisController extends Controller
         return view('devis.show', compact('devis'));
     }
 
+    public function print(Devis $devis): View
+    {
+        $devis->load('client', 'lignes');
+        return view('prints.devis', compact('devis'));
+    }
+
     public function edit(Devis $devis): View
     {
         $devis->load('lignes');

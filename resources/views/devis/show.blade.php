@@ -3,231 +3,8 @@
 @section('title', 'Devis ' . $devis->numero)
 
 @section('content')
-    <style>
-        /* Screen styles */
-        .print-btn {
-            display: inline-block;
-        }
-        
-        /* Hide print area on screen */
-        #print-area {
-            display: none;
-        }
-    </style>
-    
-    <style media="print">
-        @page {
-            size: A4;
-            margin: 15mm;
-        }
-        
-        * {
-            margin: 0 !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-        }
-        
-        html, body {
-            width: 100% !important;
-            height: 100% !important;
-            background: white !important;
-            color: #000 !important;
-            font-family: Arial, sans-serif !important;
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        
-        /* Hide layout wrapper with screen content */
-        div.max-w-7xl {
-            display: none !important;
-        }
-        
-        div.no-print {
-            display: none !important;
-        }
-        
-        /* Hide sidebar, navbar, header, and navigation */
-        aside, nav, header, 
-        .sidebar, .navbar, .topbar, .dashboard-nav,
-        [class*="sidebar"], [class*="navbar"], [class*="header"] {
-            display: none !important;
-        }
-        
-        /* Show print area */
-        #print-area {
-            display: block !important;
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            background: white !important;
-            position: static !important;
-        }
-        
-        .print-container {
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            background: white !important;
-            page-break-inside: avoid;
-            display: block !important;
-        }
-        
-        h1, h2, h3, h4, h5, h6 {
-            margin: 10px 0 8px 0 !important;
-            page-break-after: avoid;
-            color: #000 !important;
-        }
-        
-        h1 {
-            font-size: 24px !important;
-            font-weight: bold !important;
-        }
-        
-        h2 {
-            font-size: 14px !important;
-            font-weight: bold !important;
-            margin-top: 15px !important;
-        }
-        
-        p {
-            margin: 0 !important;
-            padding: 0 !important;
-        }
-        
-        table {
-            width: 100% !important;
-            border-collapse: collapse !important;
-            margin: 15px 0 !important;
-            page-break-inside: avoid;
-        }
-        
-        th {
-            background-color: #f0f0f0 !important;
-            border: 1px solid #000 !important;
-            padding: 8px !important;
-            text-align: left !important;
-            font-weight: bold !important;
-            font-size: 12px !important;
-            color: #000 !important;
-        }
-        
-        td {
-            border: 1px solid #000 !important;
-            padding: 8px !important;
-            font-size: 12px !important;
-            color: #000 !important;
-        }
-        
-        tbody tr:nth-child(even) {
-            background-color: #fafafa !important;
-        }
-        
-        .print-header {
-            text-align: center !important;
-            border-bottom: 3px solid #000 !important;
-            margin-bottom: 20px !important;
-            padding-bottom: 15px !important;
-            page-break-after: avoid;
-        }
-        
-        .print-header h1 {
-            font-size: 28px !important;
-            margin: 0 !important;
-            font-weight: bold !important;
-            color: #000 !important;
-            letter-spacing: 2px !important;
-        }
-        
-        .print-header p {
-            font-size: 14px !important;
-            margin: 5px 0 0 0 !important;
-            color: #333 !important;
-        }
-        
-        .info-grid {
-            display: grid !important;
-            grid-template-columns: 1fr 1fr 1fr !important;
-            gap: 20px !important;
-            margin: 20px 0 !important;
-            page-break-inside: avoid;
-        }
-        
-        .info-box {
-            border: 1px solid #000 !important;
-            padding: 12px !important;
-            background-color: #fff !important;
-            font-size: 11px !important;
-            line-height: 1.8 !important;
-            color: #000 !important;
-            display: block !important;
-        }
-        
-        .info-box strong {
-            display: block !important;
-            font-weight: bold !important;
-            margin-bottom: 6px !important;
-            font-size: 12px !important;
-            text-decoration: underline !important;
-            padding-bottom: 3px !important;
-        }
-        
-        .info-box br {
-            content: "" !important;
-            display: block !important;
-        }
-        
-        .totals-section {
-            margin-top: 20px !important;
-            page-break-inside: avoid;
-            display: block !important;
-        }
-        
-        .total-row {
-            display: flex !important;
-            justify-content: space-between !important;
-            padding: 8px 12px !important;
-            border: none !important;
-            font-size: 12px !important;
-            color: #000 !important;
-            margin: 4px 0 !important;
-        }
-        
-        .total-row.highlight {
-            font-weight: bold !important;
-            border-top: 2px solid #000 !important;
-            border-bottom: 2px solid #000 !important;
-            font-size: 13px !important;
-            padding: 10px 12px !important;
-            margin-top: 6px !important;
-            background-color: #f9f9f9 !important;
-        }
-        
-        .signature-section {
-            margin-top: 20px !important;
-            page-break-inside: avoid;
-            display: block !important;
-        }
-        
-        .signature-section h3 {
-            font-size: 12px !important;
-            margin-bottom: 10px !important;
-            font-weight: bold !important;
-        }
-        
-        img {
-            max-width: 180px !important;
-            max-height: 120px !important;
-            border: 1px solid #000 !important;
-        }
-        
-        div {
-            page-break-inside: avoid;
-        }
-    </style>
-
     <!-- SCREEN VERSION -->
-    <div class="max-w-7xl mx-auto px-4 py-8 no-print">
+    <div class="max-w-7xl mx-auto px-4 py-8">
         <!-- Header with Actions -->
         <div class="bg-gradient-to-r from-[#1F2937] to-[#374151] rounded-lg shadow-lg p-6 mb-6">
             <div class="flex items-center justify-between">
@@ -236,30 +13,45 @@
                     <p class="mt-2 text-[#E5E7EB]">Créé le {{ $devis->created_at->format('d/m/Y à H:i') }}</p>
                 </div>
                 <div class="flex gap-3 items-center flex-wrap">
-                    <button onclick="window.print()" class="inline-flex items-center gap-2 rounded-lg bg-[#10B981] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059669] transition-all duration-200 shadow-md">
-                        🖨️ Imprimer
-                    </button>
+                    <a href="{{ route('devis.print', $devis) }}" target="_blank" class="inline-flex items-center gap-2 rounded-lg bg-[#10B981] px-5 py-3 text-sm font-semibold text-white hover:bg-[#059669] transition-all duration-200 shadow-md">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                        </svg>
+                        Imprimer
+                    </a>
                     @if($devis->canConvertToFacture())
                         <form method="POST" action="{{ route('devis.convert-to-facture', $devis) }}" class="inline">
                             @csrf
                             <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-[#8B5CF6] px-5 py-3 text-sm font-semibold text-white hover:bg-[#7C3AED] transition-all duration-200 shadow-md">
-                                ✓ Convertir en facture
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Convertir en facture
                             </button>
                         </form>
                     @endif
                     @if($devis->canBeEdited())
                         <a href="{{ route('devis.edit', $devis) }}" class="inline-flex items-center gap-2 rounded-lg bg-[#3B82F6] px-5 py-3 text-sm font-semibold text-white hover:bg-[#2563EB] transition-all duration-200 shadow-md">
-                            ✏️ Modifier
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Modifier
                         </a>
                     @endif
-                    <a href="{{ route('devis.index') }}" class="rounded-lg border-2 border-white px-5 py-3 text-sm font-semibold text-white hover:bg-white hover:text-[#1F2937] transition-all duration-200">
-                        ← Retour
+                    <a href="{{ route('devis.index') }}" class="inline-flex items-center gap-2 rounded-lg border-2 border-white px-5 py-3 text-sm font-semibold text-white hover:bg-white hover:text-[#1F2937] transition-all duration-200">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Retour
                     </a>
                     <form method="POST" action="{{ route('devis.destroy', $devis) }}" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce devis ?')" style="display: inline;">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 transition-all duration-200 shadow-md">
-                            🗑️ Supprimer
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Supprimer
                         </button>
                     </form>
                 </div>
@@ -433,92 +225,4 @@
         </div>
     </div>
 
-    <!-- PRINT VERSION (Hidden on screen, visible only in print) -->
-    <div id="print-area" class="print-container">
-        <!-- Header -->
-        <div class="print-header">
-            <h1>DEVIS</h1>
-            <p>{{ $devis->numero }}</p>
-        </div>
-
-        <!-- Client & Document Info -->
-        <div class="info-grid">
-            <div class="info-box">
-                <strong>CLIENT</strong>
-                {{ $devis->client->nom_raison_sociale ?? '—' }}<br>
-                @if($devis->client->adresse){{ $devis->client->adresse }}<br>@endif
-                @if($devis->client->ville){{ $devis->client->ville }}@endif
-            </div>
-            <div class="info-box">
-                <strong>INFORMATIONS</strong>
-                Date: {{ $devis->date->format('d/m/Y') }}<br>
-                Statut: @if($devis->statut === 'brouillon')Brouillon
-                @elseif($devis->statut === 'envoye')Envoyé
-                @elseif($devis->statut === 'accepte')Accepté
-                @else Refusé@endif<br>
-                Créé: {{ $devis->created_at->format('d/m/Y H:i') }}
-            </div>
-            <div class="info-box">
-                <strong>CONDITIONS</strong>
-                TVA: {{ $devis->tva }}%
-            </div>
-        </div>
-
-        <!-- Articles Section -->
-        @if($devis->lignes && $devis->lignes->count() > 0)
-            <h2>ARTICLES</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th style="width: 50%;">Désignation</th>
-                        <th style="width: 12%; text-align: right;">Quantité</th>
-                        <th style="width: 19%; text-align: right;">Prix unitaire</th>
-                        <th style="width: 19%; text-align: right;">Total HT</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($devis->lignes as $ligne)
-                        <tr>
-                            <td>{{ $ligne->designation }}</td>
-                            <td style="text-align: right;">{{ number_format($ligne->quantite, 2) }}</td>
-                            <td style="text-align: right;">{{ number_format($ligne->prix_unitaire, 2, ',', ' ') }} DH</td>
-                            <td style="text-align: right; font-weight: bold;">{{ number_format($ligne->total_ht, 2, ',', ' ') }} DH</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        @endif
-
-        <!-- Totals Section -->
-        <div class="totals-section">
-            <div style="width: 50%; margin-left: auto;">
-                <div class="total-row">
-                    <span>TOTAL HT</span>
-                    <span>{{ number_format($devis->total_ht, 2, ',', ' ') }} DH</span>
-                </div>
-                <div class="total-row">
-                    <span>TVA ({{ $devis->tva }}%)</span>
-                    <span>{{ number_format($devis->total_ttc - $devis->total_ht, 2, ',', ' ') }} DH</span>
-                </div>
-                <div class="total-row highlight">
-                    <span>TOTAL TTC</span>
-                    <span>{{ number_format($devis->total_ttc, 2, ',', ' ') }} DH</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Signature Section -->
-        @if($devis->signature_image)
-            <div class="signature-section">
-                <h3>SIGNATURE</h3>
-                <img src="{{ asset('storage/' . $devis->signature_image) }}" alt="Signature">
-            </div>
-        @endif
-
-        <!-- Footer -->
-        <div style="margin-top: 20px; padding-top: 10px; border-top: 1px solid #000; font-size: 10px; text-align: center;">
-            <p style="margin: 0;">Document généré le {{ now()->format('d/m/Y H:i') }}</p>
-            <p style="margin: 4px 0 0 0;">Devis n° {{ $devis->numero }}</p>
-        </div>
-    </div>
 @endsection

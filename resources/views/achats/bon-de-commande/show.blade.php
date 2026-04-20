@@ -2,34 +2,47 @@
 @section('title', 'Détails du Bon de Commande')
 
 @section('content')
-<div id="print-area" class="space-y-6">
+<!-- SCREEN VERSION -->
+<div class="space-y-6">
     <div class="flex items-center justify-between">
         <h1 class="text-3xl font-bold text-[#1F2937]">Bon de Commande #{{ $bonDeCommande->id }}</h1>
         <div class="flex gap-2">
-            <button onclick="window.print()" class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600 transition-colors flex items-center gap-2">
+            <a href="{{ route('achats.bon-de-commande.print', $bonDeCommande) }}" target="_blank" class="rounded-lg bg-gray-500 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-600 transition-colors flex items-center gap-2">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4H9a2 2 0 00-2 2v2a2 2 0 002 2h6a2 2 0 002-2v-2a2 2 0 00-2-2zm-6-4h.01M7 16h.01M17 16h.01" />
                 </svg>
                 Imprimer
-            </button>
+            </a>
             @if($bonDeCommande->status === 'DRAFT')
-                <a href="{{ route('achats.bon-de-commande.edit', $bonDeCommande) }}" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors">
+                <a href="{{ route('achats.bon-de-commande.edit', $bonDeCommande) }}" class="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-600 transition-colors flex items-center gap-2">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                     Modifier
                 </a>
                 <form action="{{ route('achats.bon-de-commande.confirm', $bonDeCommande) }}" method="POST" class="inline">
                     @csrf
-                    <button type="submit" class="rounded-lg bg-[#10B981] px-4 py-2 text-sm font-semibold text-white hover:bg-[#059669] transition-colors">
+                    <button type="submit" class="rounded-lg bg-[#10B981] px-4 py-2 text-sm font-semibold text-white hover:bg-[#059669] transition-colors flex items-center gap-2">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
                         Confirmer
                     </button>
                 </form>
             @endif
             @if(in_array($bonDeCommande->status, ['CONFIRMED', 'RECEIVED']))
-                <a href="{{ route('achats.bon-de-commande.receive-form', $bonDeCommande) }}" class="rounded-lg bg-[#8B5CF6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7C3AED] transition-colors">
+                <a href="{{ route('achats.bon-de-commande.receive-form', $bonDeCommande) }}" class="rounded-lg bg-[#8B5CF6] px-4 py-2 text-sm font-semibold text-white hover:bg-[#7C3AED] transition-colors flex items-center gap-2">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                    </svg>
                     Réceptionner
                 </a>
             @endif
-            <a href="{{ route('achats.bon-de-commande.index') }}" class="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors">
-                ← Retour
+            <a href="{{ route('achats.bon-de-commande.index') }}" class="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-[#F9FAFB] transition-colors flex items-center gap-2">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Retour
             </a>
         </div>
     </div>
@@ -147,123 +160,5 @@
         </div>
     @endif
 </div>
-
-<style>
-    @media print {
-        /* Show only the print area */
-        body * {
-            visibility: hidden !important;
-        }
-
-        #print-area, #print-area * {
-            visibility: visible !important;
-        }
-
-        #print-area {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            padding: 20px;
-        }
-
-        /* Optimize page for printing */
-        body {
-            background: white;
-            margin: 0;
-            padding: 20px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        #print-area {
-            margin-bottom: 0;
-            padding: 0;
-        }
-
-        h1 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 24px;
-            color: #1F2937;
-        }
-
-        h2 {
-            margin-top: 20px;
-            margin-bottom: 12px;
-            font-size: 16px;
-            color: #1F2937;
-            border-bottom: 2px solid #E5E7EB;
-            padding-bottom: 8px;
-        }
-
-        /* Card styling for print */
-        .rounded-xl {
-            border: 1px solid #ccc;
-            page-break-inside: avoid;
-            margin-bottom: 20px;
-            padding: 16px;
-            background: white;
-        }
-
-        /* Grid adjustments for print */
-        .grid.grid-cols-3 {
-            display: block;
-        }
-
-        .col-span-2 {
-            margin-bottom: 20px;
-        }
-
-        /* Table styling for print */
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 10px 0;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        th {
-            background: #f5f5f5;
-            font-weight: bold;
-        }
-
-        tr:nth-child(even) {
-            background: #fafafa;
-        }
-
-        /* Print friendly colors */
-        .text-[#1860E1], .text-[#10B981], .text-[#8B5CF6] {
-            color: #000 !important;
-        }
-
-        /* Remove shadows and rounded corners */
-        .shadow-sm, .rounded-lg, .rounded-xl {
-            box-shadow: none !important;
-            border-radius: 0 !important;
-        }
-
-        /* Spacing adjustments */
-        .px-6, .py-6 {
-            padding: 0;
-        }
-
-        .px-4, .py-3, .px-4, .py-4 {
-            padding: 8px;
-        }
-
-        /* Footer spacing */
-        .space-y-3 > * + * {
-            margin-top: 8px;
-        }
-
-    }
-</style>
 
 @endsection

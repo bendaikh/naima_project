@@ -11,6 +11,7 @@ Route::prefix('achats/bon-de-commande')->name('achats.bon-de-commande.')->group(
     Route::get('/create', [BonDeCommandeController::class, 'create'])->name('create');
     Route::post('/', [BonDeCommandeController::class, 'store'])->name('store');
     Route::get('/{bonDeCommande}', [BonDeCommandeController::class, 'show'])->name('show');
+    Route::get('/{bonDeCommande}/print', [BonDeCommandeController::class, 'print'])->name('print');
     Route::get('/{bonDeCommande}/edit', [BonDeCommandeController::class, 'edit'])->name('edit');
     Route::put('/{bonDeCommande}', [BonDeCommandeController::class, 'update'])->name('update');
     Route::post('/{bonDeCommande}/confirm', [BonDeCommandeController::class, 'confirm'])->name('confirm');

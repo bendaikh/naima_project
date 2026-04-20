@@ -128,7 +128,7 @@ class BonLivraisonService
     /**
      * Validate delivery quantities don't exceed devis quantities
      */
-    private function validateDeliveryQuantities(Devis $devis, array $lignes): void
+    private function validateDeliveryQuantities(Devis $devis, array $lignes, ?BonLivraison $excludeBon = null): void
     {
         foreach ($lignes as $ligne) {
             $devisLigne = $devis->lignes()->where('designation', $ligne['designation'])->first();
@@ -139,11 +139,17 @@ class BonLivraisonService
                 ]);
             }
 
-            // Calculate already delivered from this devis
-            $alreadyDelivered = BonLivraison::where('devis_id', $devis->id)
-                ->where('statut', 'validé')
-                ->with('lignes')
-                ->get()
+            // Calculate already delivered from this devis (including drafts and validated, excluding cancelled)
+            $query = BonLivraison::where('devis_id', $devis->id)
+                ->whereNotIn('statut', ['annulé', 'annule'])
+                ->with('lignes');
+            
+            // Exclude current bon if editing
+            if ($excludeBon) {
+                $query->where('id', '!=', $excludeBon->id);
+            }
+
+            $alreadyDelivered = $query->get()
                 ->flatMap(fn($bl) => $bl->lignes->where('designation', $ligne['designation']))
                 ->sum('quantite');
 
@@ -151,7 +157,7 @@ class BonLivraisonService
 
             if ($totalToDeliver > $devisLigne->quantite) {
                 throw ValidationException::withMessages([
-                    'quantite' => "Total livré + demandé ({$totalToDeliver}) dépasse le devis ({$devisLigne->quantite})."
+                    'quantite' => "Total livré + demandé ({$totalToDeliver}) dépasse le devis ({$devisLigne->quantite}). Déjà livré/planifié: {$alreadyDelivered}, Disponible: " . ($devisLigne->quantite - $alreadyDelivered)
                 ]);
             }
         }
