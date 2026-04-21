@@ -12,7 +12,7 @@
 
         @page {
             size: A4;
-            margin: 12mm 14mm 14mm 14mm;
+            margin: 12mm 14mm 18mm 14mm;
         }
 
         html, body {
@@ -26,30 +26,58 @@
         body {
             max-width: 210mm;
             margin: 0 auto;
-            padding: 14mm;
+            padding: 10mm 14mm 14mm 14mm;
             background: #fff;
         }
 
-        /* ===== Header / Title ===== */
+        /* ===== Header row: Logo (left) + Title (right) ===== */
+        .doc-header {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+        }
+
+        .doc-header td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .doc-header td.logo-cell {
+            width: 50%;
+            text-align: left;
+        }
+
+        .doc-header td.logo-cell img {
+            max-width: 140px;
+            max-height: 70px;
+            object-fit: contain;
+        }
+
+        .doc-header td.title-cell {
+            width: 50%;
+            text-align: right;
+        }
+
         .doc-title {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: bold;
             margin-bottom: 4px;
             color: #000;
         }
 
         .doc-meta {
-            font-size: 10pt;
-            margin-bottom: 2px;
+            font-size: 9.5pt;
+            margin-bottom: 1px;
             color: #000;
         }
 
         /* ===== Two-column block (Émetteur / Adressé à) ===== */
         .parties {
             width: 100%;
-            margin-top: 18px;
-            margin-bottom: 16px;
-            border-collapse: collapse;
+            margin-top: 6px;
+            margin-bottom: 10px;
+            border-collapse: separate;
+            border-spacing: 10px 0;
         }
 
         .parties td {
@@ -58,41 +86,61 @@
             padding: 0;
         }
 
-        .parties .party-title {
-            font-size: 11pt;
-            font-weight: bold;
-            margin-bottom: 4px;
+        .parties .party-label {
+            font-size: 9pt;
             color: #000;
+            margin-bottom: 2px;
+            padding-left: 2px;
         }
 
-        .parties .party-body {
+        .parties .party-box {
+            border: 1px solid #9aa0a6;
+            padding: 10px 12px;
+            min-height: 110px;
             font-size: 9.5pt;
             line-height: 1.5;
             color: #000;
         }
 
-        .parties .party-body strong {
+        .parties .party-box.emetteur {
+            background: #e9edf2;
+        }
+
+        .parties .party-box.recipient {
+            background: #ffffff;
+        }
+
+        .parties .party-box strong {
             font-weight: bold;
         }
 
-        /* ===== Reference line ===== */
+        /* ===== Reference line (bordered row) ===== */
         .ref-line {
-            margin: 12px 0 6px 0;
-            font-size: 10pt;
-            font-weight: bold;
+            margin: 6px 0 4px 0;
+            padding: 6px 10px;
+            font-size: 9.5pt;
+            border: 1px solid #9aa0a6;
+        }
+
+        /* ===== Currency note above items table ===== */
+        .currency-note {
+            margin: 8px 0 2px 0;
+            font-size: 9pt;
+            font-style: italic;
+            color: #000;
+            text-align: right;
         }
 
         /* ===== Items table ===== */
         .items {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
             font-size: 9.5pt;
         }
 
         .items th {
-            background: #f3f3f3;
-            border: 1px solid #999;
+            background: #ffffff;
+            border: 1px solid #9aa0a6;
             padding: 6px 8px;
             font-weight: bold;
             text-align: left;
@@ -101,7 +149,7 @@
         }
 
         .items td {
-            border: 1px solid #999;
+            border: 1px solid #9aa0a6;
             padding: 6px 8px;
             color: #000;
             vertical-align: top;
@@ -117,17 +165,19 @@
             white-space: nowrap;
         }
 
-        .currency-note {
-            margin-top: 6px;
-            font-size: 9pt;
-            font-style: italic;
-            color: #333;
+        /* Spacer row to give the items table a consistent tall appearance like in the sample PDFs */
+        .items tr.spacer td {
+            border-left: 1px solid #9aa0a6;
+            border-right: 1px solid #9aa0a6;
+            border-top: none;
+            border-bottom: none;
+            height: 260px;
         }
 
         /* ===== Bottom area: payment + totals ===== */
         .bottom {
             width: 100%;
-            margin-top: 16px;
+            margin-top: 10px;
             border-collapse: collapse;
         }
 
@@ -139,8 +189,8 @@
         .bottom td.payment {
             width: 60%;
             padding-right: 16px;
-            font-size: 9pt;
-            line-height: 1.55;
+            font-size: 8.5pt;
+            line-height: 1.45;
         }
 
         .bottom td.totals {
@@ -148,59 +198,80 @@
         }
 
         .payment p {
-            margin: 0 0 2px 0;
+            margin: 0 0 1px 0;
         }
 
         .payment .pay-title {
             font-weight: bold;
-            margin-top: 6px;
-            margin-bottom: 2px;
+            margin-top: 4px;
+            margin-bottom: 1px;
         }
 
         .totals-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 10pt;
+            font-size: 9.5pt;
         }
 
         .totals-table td {
-            padding: 5px 8px;
-            border: 1px solid #999;
+            padding: 4px 8px;
         }
 
         .totals-table td.label {
-            font-weight: bold;
-            background: #f9f9f9;
+            font-weight: normal;
+            text-align: left;
         }
 
         .totals-table td.value {
             text-align: right;
             white-space: nowrap;
+            border-bottom: 1px solid #c0c4c8;
         }
 
         .totals-table tr.grand td {
             font-weight: bold;
-            background: #ececec;
+            background: #d6dde4;
+            color: #b22222;
         }
 
-        /* ===== Signature mention ===== */
-        .signature-mention {
-            margin-top: 22px;
-            font-size: 9.5pt;
-            font-style: italic;
+        /* ===== Signature zone (devis) ===== */
+        .signature-zone {
+            margin-top: 10px;
+            width: 40%;
+            margin-left: auto;
+        }
+
+        .signature-zone .signature-label {
+            font-size: 9pt;
+            margin-bottom: 2px;
+        }
+
+        .signature-zone .signature-box {
+            border: 1px solid #9aa0a6;
+            height: 70px;
         }
 
         /* ===== Footer ===== */
         .doc-footer {
-            position: fixed;
-            bottom: 8mm;
-            left: 14mm;
-            right: 14mm;
+            margin-top: 40px;
+            padding-top: 8px;
+            border-top: 1px solid #999;
             text-align: center;
-            font-size: 8pt;
+            font-size: 7.5pt;
             color: #333;
-            border-top: 1px solid #aaa;
-            padding-top: 4px;
+            line-height: 1.4;
+        }
+
+        .doc-footer .page-num {
+            margin-top: 4px;
+            text-align: right;
+            font-size: 8pt;
+        }
+
+        @media print {
+            .doc-footer {
+                page-break-inside: avoid;
+            }
         }
 
         /* ===== Print toolbar (hidden when printing) ===== */
@@ -262,11 +333,13 @@
     @if($footerParams->footer_legal_text)
         <div class="doc-footer">
             {!! nl2br(e($footerParams->footer_legal_text)) !!}
+            <div class="page-num">1 / 1</div>
         </div>
     @else
         <div class="doc-footer">
             Société à responsabilité limitée (SARL) - Capital de 100 000 MAD - R.C.: 437783<br>
             I.F.: 37581256 - C.N.S.S.: 1780191 - ICE: 002264979000090 - Numéro TVA: 30700232
+            <div class="page-num">1 / 1</div>
         </div>
     @endif
 

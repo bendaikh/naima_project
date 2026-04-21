@@ -46,7 +46,7 @@ class ArticleController extends Controller
         
         $validated = $request->validate([
             'nom' => 'nullable|string|max:255',
-            'categorie_id' => 'required|exists:categories,id',
+            'categorie_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
             'prix_vente' => 'required|numeric|min:0',
             'prix_achat' => 'required|numeric|min:0',
@@ -93,7 +93,7 @@ class ArticleController extends Controller
     {
         $validated = $request->validate([
             'nom' => 'nullable|string|max:255',
-            'categorie_id' => 'required|exists:categories,id',
+            'categorie_id' => 'nullable|exists:categories,id',
             'description' => 'nullable|string',
             'prix_vente' => 'required|numeric|min:0',
             'prix_achat' => 'required|numeric|min:0',

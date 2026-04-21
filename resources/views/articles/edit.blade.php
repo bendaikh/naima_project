@@ -17,8 +17,8 @@
         </div>
 
         <div>
-            <label for="categorie_id" class="block text-sm font-medium text-slate-700">Catégorie *</label>
-            <select name="categorie_id" id="categorie_id" required class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+            <label for="categorie_id" class="block text-sm font-medium text-slate-700">Catégorie</label>
+            <select name="categorie_id" id="categorie_id" class="mt-1 w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                 <option value="">-- Sélectionner une catégorie --</option>
                 @foreach(\App\Models\Categorie::all() as $cat)
                     <option value="{{ $cat->id }}" {{ old('categorie_id', $article->categorie_id) == $cat->id ? 'selected' : '' }}>{{ $cat->nom }}</option>

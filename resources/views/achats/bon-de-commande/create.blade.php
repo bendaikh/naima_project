@@ -108,11 +108,11 @@
 
                         <!-- Article Selection -->
                         <div class="col-span-10 space-y-4">
-                            <div class="grid grid-cols-3 gap-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs font-medium text-[#374151] mb-1">Article *</label>
+                                    <label class="block text-xs font-medium text-[#374151] mb-1">Sélectionner un article existant</label>
                                     <select name="lignes[0][article_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] article-select">
-                                        <option value="">-- Sélectionner ou créer --</option>
+                                        <option value="">-- Choisir un article --</option>
                                         @foreach($articles as $article)
                                             <option value="{{ $article->id }}"
                                                 data-nom="{{ $article->nom }}"
@@ -129,12 +129,14 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-[#374151] mb-1">Nom du Produit (nouveau)</label>
+                                    <label class="block text-xs font-medium text-[#374151] mb-1">OU Saisir manuellement le nom du produit</label>
                                     <input type="text" name="lignes[0][product_name]" placeholder="Ex: Nouveau Produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
                                 </div>
+                            </div>
 
+                            <div class="grid grid-cols-4 gap-4">
                                 <div>
-                                    <label class="block text-xs font-medium text-[#374151] mb-1">Catégorie (nouveau)</label>
+                                    <label class="block text-xs font-medium text-[#374151] mb-1">Catégorie</label>
                                     <select name="lignes[0][categorie_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] categorie-select">
                                         <option value="">-- Sélectionner --</option>
                                         @foreach($categories as $cat)
@@ -142,16 +144,14 @@
                                         @endforeach
                                     </select>
                                 </div>
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-4">
+                                
                                 <div>
                                     <label class="block text-xs font-medium text-[#374151] mb-1">Quantité *</label>
                                     <input type="number" name="lignes[0][quantity]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] quantity-input">
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-[#374151] mb-1">Prix d'Achat *</label>
+                                    <label class="block text-xs font-medium text-[#374151] mb-1">Prix d'Achat (DH) *</label>
                                     <input type="number" name="lignes[0][purchase_price]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] price-input">
                                 </div>
 
@@ -243,11 +243,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     <!-- Article Selection -->
                     <div class="col-span-10 space-y-4">
-                        <div class="grid grid-cols-3 gap-4">
+                        <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-medium text-[#374151] mb-1">Article *</label>
+                                <label class="block text-xs font-medium text-[#374151] mb-1">Sélectionner un article existant</label>
                                 <select name="lignes[${ligneIndex}][article_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] article-select">
-                                    <option value="">-- Sélectionner ou créer --</option>
+                                    <option value="">-- Choisir un article --</option>
                                     @foreach($articles as $article)
                                         <option value="{{ $article->id }}"
                                             data-nom="{{ $article->nom }}"
@@ -261,12 +261,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
 
                             <div>
-                                <label class="block text-xs font-medium text-[#374151] mb-1">Nom du Produit (nouveau)</label>
+                                <label class="block text-xs font-medium text-[#374151] mb-1">OU Saisir manuellement le nom du produit</label>
                                 <input type="text" name="lignes[${ligneIndex}][product_name]" placeholder="Ex: Nouveau Produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
                             </div>
+                        </div>
 
+                        <div class="grid grid-cols-4 gap-4">
                             <div>
-                                <label class="block text-xs font-medium text-[#374151] mb-1">Catégorie (nouveau)</label>
+                                <label class="block text-xs font-medium text-[#374151] mb-1">Catégorie</label>
                                 <select name="lignes[${ligneIndex}][categorie_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] categorie-select">
                                     <option value="">-- Sélectionner --</option>
                                     @foreach($categories as $cat)
@@ -274,16 +276,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
-
-                        <div class="grid grid-cols-3 gap-4">
+                            
                             <div>
                                 <label class="block text-xs font-medium text-[#374151] mb-1">Quantité *</label>
                                 <input type="number" name="lignes[${ligneIndex}][quantity]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] quantity-input">
                             </div>
 
                             <div>
-                                <label class="block text-xs font-medium text-[#374151] mb-1">Prix d'Achat *</label>
+                                <label class="block text-xs font-medium text-[#374151] mb-1">Prix d'Achat (DH) *</label>
                                 <input type="number" name="lignes[${ligneIndex}][purchase_price]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] price-input">
                             </div>
 
@@ -318,6 +318,7 @@ function attachLigneListeners(ligneElement) {
     const fileInput = ligneElement.querySelector('.image-file-input');
     const imageDiv = ligneElement.querySelector('.article-image');
     const articleSelect = ligneElement.querySelector('.article-select');
+    const productNameInput = ligneElement.querySelector('.product-name-input');
     const categorieSelect = ligneElement.querySelector('.categorie-select');
     const quantityInput = ligneElement.querySelector('.quantity-input');
     const priceInput = ligneElement.querySelector('.price-input');
@@ -326,6 +327,20 @@ function attachLigneListeners(ligneElement) {
 
     // Handle image file selection
     handleFileSelect(fileInput, imageDiv);
+
+    // Clear manual input when article is selected
+    articleSelect.addEventListener('change', function() {
+        if (this.value) {
+            productNameInput.value = '';
+        }
+    });
+
+    // Clear article selection when manual input is entered
+    productNameInput.addEventListener('input', function() {
+        if (this.value) {
+            articleSelect.value = '';
+        }
+    });
 
     // Update price when article is selected
     const syncCategoryState = () => {

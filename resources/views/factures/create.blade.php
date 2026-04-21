@@ -50,28 +50,44 @@
             <div class="space-y-4">
                 <h3 class="text-lg font-semibold text-[#1F2937]">Articles</h3>
                 
-                <div class="grid grid-cols-3 gap-4">
-                    <div>
-                        <label for="article_select" class="block text-sm font-medium text-[#374151]">Sélectionner un article</label>
-                        <select id="article_select" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                            <option value="">-- Choisir un article --</option>
-                            @foreach($articles as $article)
-                                <option value="{{ $article->id }}" data-name="{{ $article->nom }}" data-price="{{ $article->prix_vente }}">
-                                    {{ $article->nom }} ({{ $article->prix_vente }} MAD)
-                                </option>
-                            @endforeach
-                        </select>
+                <div class="space-y-4">
+                    <!-- Row 1: Article Selection or Manual Name -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="article_select" class="block text-sm font-medium text-[#374151]">Sélectionner un article existant</label>
+                            <select id="article_select" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                                <option value="">-- Choisir un article --</option>
+                                @foreach($articles as $article)
+                                    <option value="{{ $article->id }}" data-name="{{ $article->nom }}" data-price="{{ $article->prix_vente }}">
+                                        {{ $article->nom }} ({{ $article->prix_vente }} MAD)
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="designation_input" class="block text-sm font-medium text-[#374151]">OU Saisir manuellement la désignation</label>
+                            <input type="text" id="designation_input" placeholder="Ex: Nouveau produit" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                        </div>
                     </div>
                     
-                    <div>
-                        <label for="quantite_input" class="block text-sm font-medium text-[#374151]">Quantité</label>
-                        <input type="number" id="quantite_input" step="1" min="1" value="1" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                    </div>
-                    
-                    <div class="flex items-end">
-                        <button type="button" id="add_article_btn" class="w-full rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1557C7]">
-                            Ajouter
-                        </button>
+                    <!-- Row 2: Quantity and Price -->
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label for="quantite_input" class="block text-sm font-medium text-[#374151]">Quantité</label>
+                            <input type="number" id="quantite_input" step="1" min="1" value="1" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                        </div>
+                        
+                        <div>
+                            <label for="prix_unitaire_input" class="block text-sm font-medium text-[#374151]">Prix unitaire (MAD)</label>
+                            <input type="number" id="prix_unitaire_input" step="0.01" min="0" placeholder="0.00" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                        </div>
+                        
+                        <div class="flex items-end">
+                            <button type="button" id="add_article_btn" class="w-full rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1557C7]">
+                                Ajouter
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -141,22 +157,58 @@
         let articles = [];
         let tvaRate = parseFloat(document.getElementById('tva').value) / 100;
 
+        // Auto-fill price when article is selected
+        document.getElementById('article_select').addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const designationInput = document.getElementById('designation_input');
+            const prixUnitaireInput = document.getElementById('prix_unitaire_input');
+            
+            if (selectedOption.value) {
+                // Fill price automatically when article is selected
+                prixUnitaireInput.value = selectedOption.dataset.price;
+                
+                // Clear manual designation input
+                designationInput.value = '';
+            }
+        });
+
+        // Clear article selection when manual designation is entered
+        document.getElementById('designation_input').addEventListener('input', function() {
+            if (this.value) {
+                document.getElementById('article_select').value = '';
+            }
+        });
+
         document.getElementById('add_article_btn').addEventListener('click', function() {
             const select = document.getElementById('article_select');
+            const designationInput = document.getElementById('designation_input');
             const quantiteInput = document.getElementById('quantite_input');
+            const prixUnitaireInput = document.getElementById('prix_unitaire_input');
             const selectedOption = select.options[select.selectedIndex];
             
-            if (!selectedOption.value) {
-                alert('Veuillez sélectionner un article');
+            // Check if either article is selected OR manual designation is provided
+            let article;
+            
+            if (selectedOption.value) {
+                // Use selected article
+                article = {
+                    id: selectedOption.value,
+                    designation: selectedOption.dataset.name,
+                    prix_unitaire: parseFloat(selectedOption.dataset.price),
+                    quantite: parseFloat(quantiteInput.value),
+                };
+            } else if (designationInput.value && prixUnitaireInput.value) {
+                // Use manual input
+                article = {
+                    id: null, // No ID for manual articles
+                    designation: designationInput.value,
+                    prix_unitaire: parseFloat(prixUnitaireInput.value),
+                    quantite: parseFloat(quantiteInput.value),
+                };
+            } else {
+                alert('Veuillez soit sélectionner un article, soit saisir une désignation et un prix');
                 return;
             }
-
-            const article = {
-                id: selectedOption.value,
-                designation: selectedOption.dataset.name,
-                prix_unitaire: parseFloat(selectedOption.dataset.price),
-                quantite: parseFloat(quantiteInput.value),
-            };
 
             article.total_ht = (article.quantite * article.prix_unitaire).toFixed(2);
             
@@ -165,6 +217,8 @@
             
             // Reset inputs
             select.value = '';
+            designationInput.value = '';
+            prixUnitaireInput.value = '';
             quantiteInput.value = '1';
         });
 

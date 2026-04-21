@@ -65,35 +65,42 @@
             <div id="lignes-container">
                 @foreach($bonDeCommande->lignes as $index => $ligne)
                     <div class="mb-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-4 ligne-item">
-                        <div class="mb-3 grid gap-4 sm:grid-cols-6">
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-[#374151]">Article (optionnel)</label>
-                                <select name="lignes[{{ $index }}][article_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                                    <option value="">-- Nouveau produit --</option>
-                                    @foreach($articles as $article)
-                                        <option value="{{ $article->id }}" {{ $ligne->article_id == $article->id ? 'selected' : '' }}>
-                                            {{ $article->nom }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                        <div class="space-y-3">
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-[#374151]">Sélectionner un article existant</label>
+                                    <select name="lignes[{{ $index }}][article_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] article-select">
+                                        <option value="">-- Choisir un article --</option>
+                                        @foreach($articles as $article)
+                                            <option value="{{ $article->id }}" {{ $ligne->article_id == $article->id ? 'selected' : '' }}>
+                                                {{ $article->nom }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-[#374151]">OU Saisir manuellement le nom du produit</label>
+                                    <input type="text" name="lignes[{{ $index }}][product_name]" value="{{ old('lignes.' . $index . '.product_name', $ligne->product_name) }}" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
+                                </div>
                             </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-[#374151]">Nom du produit (si nouveau)</label>
-                                <input type="text" name="lignes[{{ $index }}][product_name]" value="{{ old('lignes.' . $index . '.product_name', $ligne->product_name) }}" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-[#374151]">Quantité *</label>
-                                <input type="number" name="lignes[{{ $index }}][quantity]" step="0.01" required value="{{ old('lignes.' . $index . '.quantity', $ligne->quantity) }}" placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm quantity-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                            </div>
-                            <div>
-                                <label class="mb-1 block text-xs font-medium text-[#374151]">Prix d'achat *</label>
-                                <input type="number" name="lignes[{{ $index }}][purchase_price]" step="0.01" required value="{{ old('lignes.' . $index . '.purchase_price', $ligne->purchase_price) }}" placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm price-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                            </div>
-                            <div class="pt-6">
-                                <span class="text-sm font-semibold text-[#374151]">Total: <span class="ligne-total">0.00</span></span>
-                            </div>
-                            <div class="pt-6">
-                                <button type="button" class="remove-ligne font-medium text-red-600 hover:text-red-900 text-sm">Supprimer</button>
+                            <div class="grid gap-4 sm:grid-cols-4">
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-[#374151]">Quantité *</label>
+                                    <input type="number" name="lignes[{{ $index }}][quantity]" step="0.01" required value="{{ old('lignes.' . $index . '.quantity', $ligne->quantity) }}" placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm quantity-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-[#374151]">Prix d'achat (DH) *</label>
+                                    <input type="number" name="lignes[{{ $index }}][purchase_price]" step="0.01" required value="{{ old('lignes.' . $index . '.purchase_price', $ligne->purchase_price) }}" placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm price-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                                </div>
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-[#374151]">Total</label>
+                                    <div class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm font-semibold text-[#1860E1] bg-white">
+                                        <span class="ligne-total">0.00</span> DH
+                                    </div>
+                                </div>
+                                <div class="flex items-end">
+                                    <button type="button" class="remove-ligne w-full rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 transition-colors">Supprimer</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -132,33 +139,40 @@ document.getElementById('add-ligne').addEventListener('click', function() {
     const newLigne = document.createElement('div');
     newLigne.className = 'mb-4 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-4 ligne-item';
     newLigne.innerHTML = `
-        <div class="mb-3 grid gap-4 sm:grid-cols-6">
-            <div>
-                <label class="mb-1 block text-xs font-medium text-[#374151]">Article (optionnel)</label>
-                <select name="lignes[${ligneIndex}][article_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                    <option value="">-- Nouveau produit --</option>
-                    @foreach($articles as $article)
-                        <option value="{{ $article->id }}">{{ $article->nom }}</option>
-                    @endforeach
-                </select>
+        <div class="space-y-3">
+            <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-[#374151]">Sélectionner un article existant</label>
+                    <select name="lignes[${ligneIndex}][article_id]" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] article-select">
+                        <option value="">-- Choisir un article --</option>
+                        @foreach($articles as $article)
+                            <option value="{{ $article->id }}">{{ $article->nom }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-[#374151]">OU Saisir manuellement le nom du produit</label>
+                    <input type="text" name="lignes[${ligneIndex}][product_name]" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
+                </div>
             </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-[#374151]">Nom du produit (si nouveau)</label>
-                <input type="text" name="lignes[${ligneIndex}][product_name]" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-[#374151]">Quantité *</label>
-                <input type="number" name="lignes[${ligneIndex}][quantity]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm quantity-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-            </div>
-            <div>
-                <label class="mb-1 block text-xs font-medium text-[#374151]">Prix d'achat *</label>
-                <input type="number" name="lignes[${ligneIndex}][purchase_price]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm price-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-            </div>
-            <div class="pt-6">
-                <span class="text-sm font-semibold text-[#374151]">Total: <span class="ligne-total">0.00</span></span>
-            </div>
-            <div class="pt-6">
-                <button type="button" class="remove-ligne font-medium text-red-600 hover:text-red-900 text-sm">Supprimer</button>
+            <div class="grid gap-4 sm:grid-cols-4">
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-[#374151]">Quantité *</label>
+                    <input type="number" name="lignes[${ligneIndex}][quantity]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm quantity-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-[#374151]">Prix d'achat (DH) *</label>
+                    <input type="number" name="lignes[${ligneIndex}][purchase_price]" step="0.01" required placeholder="0.00" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm price-input focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div>
+                    <label class="mb-1 block text-xs font-medium text-[#374151]">Total</label>
+                    <div class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm font-semibold text-[#1860E1] bg-white">
+                        <span class="ligne-total">0.00</span> DH
+                    </div>
+                </div>
+                <div class="flex items-end">
+                    <button type="button" class="remove-ligne w-full rounded-lg bg-red-50 px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-100 transition-colors">Supprimer</button>
+                </div>
             </div>
         </div>
     `;
@@ -168,9 +182,27 @@ document.getElementById('add-ligne').addEventListener('click', function() {
 });
 
 function attachLigneListeners(ligneElement) {
+    const articleSelect = ligneElement.querySelector('.article-select');
+    const productNameInput = ligneElement.querySelector('.product-name-input');
     const quantityInput = ligneElement.querySelector('.quantity-input');
     const priceInput = ligneElement.querySelector('.price-input');
     const removeBtn = ligneElement.querySelector('.remove-ligne');
+
+    // Clear manual input when article is selected
+    if (articleSelect && productNameInput) {
+        articleSelect.addEventListener('change', function() {
+            if (this.value) {
+                productNameInput.value = '';
+            }
+        });
+
+        // Clear article selection when manual input is entered
+        productNameInput.addEventListener('input', function() {
+            if (this.value) {
+                articleSelect.value = '';
+            }
+        });
+    }
 
     const updateTotal = () => {
         const qty = parseFloat(quantityInput.value) || 0;
