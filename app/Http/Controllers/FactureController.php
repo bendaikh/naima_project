@@ -44,7 +44,7 @@ class FactureController extends Controller
         ]);
 
         $params = ParametresEntreprise::get();
-        $validated['numero'] = $params->prefixe_facture . str_pad((string) $params->prochain_numero_facture, 4, '0', STR_PAD_LEFT);
+        $validated['numero'] = $params->generateDocumentNumber('facture', $validated['date']);
         $validated['tva'] = $validated['tva'] ?? $params->tva_par_defaut;
         
         // Initialize totals

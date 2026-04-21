@@ -52,10 +52,9 @@ class FactureService
 
         // Generate facture numero
         $params = ParametresEntreprise::first();
-        $numero = $params->prefixe_facture . str_pad((string) $params->prochain_numero_facture, 4, '0', STR_PAD_LEFT);
-
         // Assume all BLs have same client
         $bonLivraison = BonLivraison::find($bonLivraisonIds[0]);
+        $numero = $params->generateDocumentNumber('facture', $bonLivraison->date ?? now());
 
         // Create facture
         $facture = Facture::create([

@@ -35,7 +35,7 @@ class BonLivraisonService
 
         // Generate BL numero
         $params = ParametresEntreprise::first();
-        $numero = $params->prefixe_bon_livraison . str_pad((string) $params->prochain_numero_bon_livraison, 4, '0', STR_PAD_LEFT);
+        $numero = $params->generateDocumentNumber('bon_livraison', $data['date'] ?? now());
 
         // Create bon de livraison
         $bonLivraison = BonLivraison::create([

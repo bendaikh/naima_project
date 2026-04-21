@@ -25,6 +25,9 @@
                 <div class="doc-title">Devis {{ $devis->numero }}</div>
                 <div class="doc-meta">Date : {{ $devis->date->format('d/m/Y') }}</div>
                 <div class="doc-meta">Date de fin de validité : {{ $dateValidite->format('d/m/Y') }}</div>
+                @if($devis->disponibilite)
+                    <div class="doc-meta">Disponibilité : {{ $devis->disponibilite }}</div>
+                @endif
             </td>
         </tr>
     </table>

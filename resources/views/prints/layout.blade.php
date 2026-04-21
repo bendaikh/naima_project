@@ -170,7 +170,7 @@
             border-left: 1px solid #9aa0a6;
             border-right: 1px solid #9aa0a6;
             border-top: none;
-            border-bottom: none;
+            border-bottom: 1px solid #9aa0a6;
             height: 260px;
         }
 

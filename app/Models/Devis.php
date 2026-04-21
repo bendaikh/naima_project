@@ -18,6 +18,7 @@ class Devis extends Model
         'client_id',
         'date',
         'tva',
+        'disponibilite',
         'total_ht',
         'total_ttc',
         'statut',
@@ -139,7 +140,7 @@ class Devis extends Model
         $params = ParametresEntreprise::first();
         
         $facture = Facture::create([
-            'numero' => $params->prefixe_facture . str_pad((string) $params->prochain_numero_facture, 4, '0', STR_PAD_LEFT),
+            'numero' => $params->generateDocumentNumber('facture', now()->toDateString()),
             'client_id' => $this->client_id,
             'devis_id' => $this->id,
             'date' => now()->toDateString(),

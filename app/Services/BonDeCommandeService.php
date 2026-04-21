@@ -26,7 +26,12 @@ class BonDeCommandeService
     public function createBonDeCommande(array $data): BonDeCommande
     {
         return DB::transaction(function () use ($data) {
+            // Generate reference number
+            $params = \App\Models\ParametresEntreprise::get();
+            $reference = $params->generateDocumentNumber('bon_commande', $data['order_date']);
+            
             $bonDeCommande = BonDeCommande::create([
+                'reference' => $reference,
                 'fournisseur_id' => $data['fournisseur_id'],
                 'order_date' => $data['order_date'],
                 'expected_delivery_date' => $data['expected_delivery_date'] ?? null,
@@ -38,6 +43,9 @@ class BonDeCommandeService
             foreach ($data['lignes'] as $ligne) {
                 $this->createOrderLine($bonDeCommande, $ligne);
             }
+            
+            // Increment the counter
+            $params->increment('prochain_numero_bon_commande');
 
             return $bonDeCommande;
         });

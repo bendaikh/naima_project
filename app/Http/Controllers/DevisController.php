@@ -46,12 +46,13 @@ class DevisController extends Controller
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
             'tva' => 'nullable|numeric|min:0|max:100',
+            'disponibilite' => 'nullable|string|max:50',
             'articles_data' => 'nullable|json',
             'signature_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
         ]);
 
         $params = \App\Models\ParametresEntreprise::get();
-        $validated['numero'] = $params->prefixe_devis . str_pad((string) $params->prochain_numero_devis, 4, '0', STR_PAD_LEFT);
+        $validated['numero'] = $params->generateDocumentNumber('devis', $validated['date']);
         $validated['tva'] = $validated['tva'] ?? $params->tva_par_defaut;
         
         // Initialize totals
@@ -128,6 +129,7 @@ class DevisController extends Controller
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
             'tva' => 'nullable|numeric|min:0|max:100',
+            'disponibilite' => 'nullable|string|max:50',
             'statut' => 'required|in:brouillon,envoye,accepte,refuse',
             'articles_data' => 'nullable|json',
             'signature_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',

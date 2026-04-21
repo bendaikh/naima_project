@@ -28,11 +28,22 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-3 gap-4">
                 <div>
                     <label for="tva" class="block text-sm font-medium text-[#374151]">TVA (%)</label>
                     <input type="number" name="tva" id="tva" value="{{ old('tva', 20) }}" step="0.01" min="0" max="100" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                     @error('tva') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
+                    <label for="disponibilite" class="block text-sm font-medium text-[#374151]">Disponibilité</label>
+                    <select name="disponibilite" id="disponibilite" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                        <option value="">-- Choisir --</option>
+                        @foreach(['Immédiate','1 jour','2 jours','3 jours','4 jours','5 jours','1 semaine','2 semaines','3 semaines','4 semaines'] as $opt)
+                            <option value="{{ $opt }}" {{ old('disponibilite') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                        @endforeach
+                    </select>
+                    @error('disponibilite') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>

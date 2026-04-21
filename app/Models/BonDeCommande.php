@@ -11,6 +11,7 @@ class BonDeCommande extends Model
     protected $table = 'bons_de_commande';
 
     protected $fillable = [
+        'reference',
         'fournisseur_id',
         'order_date',
         'expected_delivery_date',

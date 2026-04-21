@@ -50,7 +50,7 @@ class BonRetourService
 
         // Generate numero
         $params = \App\Models\ParametresEntreprise::first();
-        $numero = $params->prefixe_bon_retour . str_pad((string) $params->prochain_numero_bon_retour, 4, '0', STR_PAD_LEFT);
+        $numero = $params->generateDocumentNumber('bon_retour', $data['date'] ?? now());
 
         // Create bon de retour
         $bonRetour = BonRetour::create([

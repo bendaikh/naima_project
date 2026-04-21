@@ -128,6 +128,12 @@
                         <p class="text-xs font-semibold text-[#6B7280] uppercase">TVA</p>
                         <p class="text-2xl font-bold text-[#F59E0B]">{{ $devis->tva }}%</p>
                     </div>
+                    @if($devis->disponibilite)
+                        <div>
+                            <p class="text-xs font-semibold text-[#6B7280] uppercase">Disponibilité</p>
+                            <p class="text-base font-semibold">{{ $devis->disponibilite }}</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
