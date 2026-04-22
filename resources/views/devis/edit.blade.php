@@ -31,14 +31,9 @@
             <!-- Client and Basic Info Section -->
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label for="client_id" class="block text-sm font-medium text-[#374151]">Client *</label>
-                    <select name="client_id" id="client_id" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                        <option value="">Choisir un client</option>
-                        @foreach($clients as $c)
-                            <option value="{{ $c->id }}" {{ old('client_id', $devis->client_id) == $c->id ? 'selected' : '' }}>{{ $c->nom_raison_sociale }}</option>
-                        @endforeach
-                    </select>
-                    @error('client_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <label for="numero" class="block text-sm font-medium text-[#374151]">Numéro *</label>
+                    <input type="text" name="numero" id="numero" value="{{ old('numero', $devis->numero) }}" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                    @error('numero') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
@@ -46,6 +41,17 @@
                     <input type="date" name="date" id="date" value="{{ old('date', $devis->date->format('Y-m-d')) }}" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                     @error('date') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
+            </div>
+
+            <div>
+                <label for="client_id" class="block text-sm font-medium text-[#374151]">Client *</label>
+                <select name="client_id" id="client_id" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                    <option value="">Choisir un client</option>
+                    @foreach($clients as $c)
+                        <option value="{{ $c->id }}" {{ old('client_id', $devis->client_id) == $c->id ? 'selected' : '' }}>{{ $c->nom_raison_sociale }}</option>
+                    @endforeach
+                </select>
+                @error('client_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div class="grid grid-cols-3 gap-4">

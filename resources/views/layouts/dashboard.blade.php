@@ -207,19 +207,6 @@
                     </li>
                 </ul>
             </nav>
-            <div class="border-t border-white/10 p-6">
-                <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 p-4 shadow-xl">
-                    <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-                    <div class="relative">
-                        <div class="flex items-center gap-2 text-white">
-                            <svg class="h-5 w-5 animate-pulse" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/></svg>
-                            <span class="text-sm font-bold">Version Pro</span>
-                        </div>
-                        <p class="mt-2 text-xs text-white/90">Débloquez toutes les fonctionnalités avancées.</p>
-                        <a href="#" class="mt-3 block w-full rounded-xl bg-white px-4 py-2.5 text-center text-sm font-bold text-orange-600 hover:bg-white/90 transition-all duration-200 shadow-lg">Mettre à niveau</a>
-                    </div>
-                </div>
-            </div>
         </aside>
 
         <div class="flex flex-1 flex-col pl-64">

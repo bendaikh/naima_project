@@ -113,6 +113,7 @@ class FactureController extends Controller
     public function update(Request $request, Facture $facture)
     {
         $validated = $request->validate([
+            'numero' => 'required|string|max:50|unique:factures,numero,' . $facture->id,
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
             'date_echeance' => 'nullable|date',

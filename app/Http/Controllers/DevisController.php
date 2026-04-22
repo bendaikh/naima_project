@@ -126,6 +126,7 @@ class DevisController extends Controller
     public function update(Request $request, Devis $devis)
     {
         $validated = $request->validate([
+            'numero' => 'required|string|max:50|unique:devis,numero,' . $devis->id,
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
             'tva' => 'nullable|numeric|min:0|max:100',

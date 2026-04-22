@@ -9,6 +9,11 @@
             @csrf
             @method('PUT')
             <div>
+                <label for="numero" class="block text-sm font-medium text-[#374151]">Numéro *</label>
+                <input type="text" name="numero" id="numero" value="{{ old('numero', $facture->numero) }}" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                @error('numero') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+            <div>
                 <label for="client_id" class="block text-sm font-medium text-[#374151]">Client *</label>
                 <select name="client_id" id="client_id" required class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                     @foreach($clients as $c)

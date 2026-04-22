@@ -22,6 +22,15 @@
 
         <!-- Supplier Selection -->
         <div>
+            <label for="reference" class="mb-2 block text-sm font-medium text-[#374151]">Référence *</label>
+            <input type="text" id="reference" name="reference" required value="{{ old('reference', $bonDeCommande->reference) }}" class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+            @error('reference')
+                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Supplier Selection -->
+        <div>
             <label for="fournisseur_id" class="mb-2 block text-sm font-medium text-[#374151]">Fournisseur *</label>
             <select id="fournisseur_id" name="fournisseur_id" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 @foreach($fournisseurs as $fournisseur)

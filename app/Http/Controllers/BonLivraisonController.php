@@ -124,6 +124,7 @@ class BonLivraisonController extends Controller
     public function update(Request $request, BonLivraison $bonLivraison, BonLivraisonService $service)
     {
         $validated = $request->validate([
+            'numero' => 'required|string|max:50|unique:bons_livraison,numero,' . $bonLivraison->id,
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
             'statut' => 'required|in:en_attente,livre,validé,annule',
@@ -133,6 +134,7 @@ class BonLivraisonController extends Controller
         ]);
 
         $bonLivraison->update([
+            'numero' => $validated['numero'],
             'client_id' => $validated['client_id'],
             'date' => $validated['date'],
             'statut' => $validated['statut'],

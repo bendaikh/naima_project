@@ -141,6 +141,7 @@ class BonDeCommandeController extends Controller
     public function update(Request $request, BonDeCommande $bonDeCommande): RedirectResponse
     {
         $validated = $request->validate([
+            'reference' => 'required|string|max:50|unique:bons_de_commande,reference,' . $bonDeCommande->id,
             'fournisseur_id' => 'required|exists:fournisseurs,id',
             'order_date' => 'required|date',
             'expected_delivery_date' => 'nullable|date|after:order_date',

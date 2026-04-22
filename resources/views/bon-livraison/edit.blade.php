@@ -39,16 +39,9 @@
             <!-- Client, Date and Status Section -->
             <div class="grid grid-cols-3 gap-4 border-b border-[#E5E7EB] pb-6">
                 <div>
-                    <label class="block text-sm font-medium text-[#374151] mb-2">Devis *</label>
-                    <select name="devis_id" id="devis_id" onchange="loadDevisArticles()" class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
-                        <option value="">Sélectionner un devis</option>
-                        @if($bonLivraison->devis)
-                            <option value="{{ $bonLivraison->devis->id }}" selected>
-                                {{ $bonLivraison->devis->numero }}
-                            </option>
-                        @endif
-                    </select>
-                    @error('devis_id') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Numéro *</label>
+                    <input type="text" name="numero" value="{{ $bonLivraison->numero }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                    @error('numero') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
