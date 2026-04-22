@@ -93,10 +93,4 @@
             </td>
         </tr>
     </table>
-
-    {{-- Note --}}
-    <div style="margin-top: 20px; padding: 10px 12px; background-color: #fffbeb; border-left: 3px solid #f59e0b; font-size: 8.5pt; color: #92400e; line-height: 1.45;">
-        <strong>Note importante :</strong> Ce bon de livraison atteste de la réception des articles mentionnés ci-dessus. 
-        Merci de vérifier la conformité des articles et de signaler toute anomalie dans les plus brefs délais.
-    </div>
 @endsection
