@@ -59,7 +59,7 @@
                     <label for="disponibilite" class="block text-sm font-medium text-[#374151]">Disponibilité</label>
                     <select name="disponibilite" id="disponibilite" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                         <option value="">-- Choisir --</option>
-                        @foreach(['Immédiate','1 jour','2 jours','3 jours','4 jours','5 jours','1 semaine','2 semaines','3 semaines','4 semaines'] as $opt)
+                        @foreach(['Immédiate','1 jour','2 jours','3 jours','4 jours','5 jours','1 semaine','2 semaines','3 semaines','4 semaines','8 semaines','12 semaines','16 semaines'] as $opt)
                             <option value="{{ $opt }}" {{ old('disponibilite', $devis->disponibilite) === $opt ? 'selected' : '' }}>{{ $opt }}</option>
                         @endforeach
                     </select>

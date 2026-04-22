@@ -15,7 +15,9 @@
 <table class="bottom">
     <tr>
         <td class="payment">
-            <p>Règlement par virement sur le compte bancaire ou Règlement TTC par chèque</p>
+            <p>Règlement TTC par chèque ou virement sur le compte bancaire suivant:</p>
+            <p style="margin-top: 5px;"><strong>Banque:</strong> Attijariwabank</p>
+            <p><strong>Numéro de compte:</strong> 007 780 0002755000000422 57</p>
         </td>
         <td class="totals">
             <table class="totals-table">
