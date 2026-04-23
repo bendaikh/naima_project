@@ -12,6 +12,7 @@ class FactureLigne extends Model
     protected $fillable = [
         'facture_id',
         'designation',
+        'categorie',
         'quantite',
         'prix_unitaire',
         'tva',

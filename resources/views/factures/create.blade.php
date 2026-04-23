@@ -58,8 +58,11 @@
                             <select id="article_select" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 <option value="">-- Choisir un article --</option>
                                 @foreach($articles as $article)
-                                    <option value="{{ $article->id }}" data-name="{{ $article->nom }}" data-price="{{ $article->prix_vente }}">
-                                        {{ $article->nom }} ({{ $article->prix_vente }} MAD)
+                                    <option value="{{ $article->id }}" 
+                                            data-name="{{ $article->nom }}" 
+                                            data-price="{{ $article->prix_vente }}"
+                                            data-categorie="{{ $article->categorie?->nom ?? 'Non catégorisé' }}">
+                                        {{ $article->nom }} @if($article->categorie) - {{ $article->categorie->nom }} @endif ({{ $article->prix_vente }} MAD)
                                     </option>
                                 @endforeach
                             </select>
@@ -68,6 +71,15 @@
                         <div>
                             <label for="designation_input" class="block text-sm font-medium text-[#374151]">OU Saisir manuellement la désignation</label>
                             <input type="text" id="designation_input" placeholder="Ex: Nouveau produit" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                        </div>
+                    </div>
+
+                    <!-- Row 1.5: Category (for manual entry) -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div></div>
+                        <div>
+                            <label for="categorie_input" class="block text-sm font-medium text-[#374151]">Catégorie (optionnel)</label>
+                            <input type="text" id="categorie_input" placeholder="Ex: Électronique, Service, etc." class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                         </div>
                     </div>
                     
@@ -97,6 +109,7 @@
                         <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                             <tr>
                                 <th class="px-4 py-2 text-left font-medium text-[#374151]">Désignation</th>
+                                <th class="px-4 py-2 text-left font-medium text-[#374151]">Catégorie</th>
                                 <th class="px-4 py-2 text-right font-medium text-[#374151]">Quantité</th>
                                 <th class="px-4 py-2 text-right font-medium text-[#374151]">Prix unitaire</th>
                                 <th class="px-4 py-2 text-right font-medium text-[#374151]">Total HT</th>
@@ -161,14 +174,16 @@
         document.getElementById('article_select').addEventListener('change', function() {
             const selectedOption = this.options[this.selectedIndex];
             const designationInput = document.getElementById('designation_input');
+            const categorieInput = document.getElementById('categorie_input');
             const prixUnitaireInput = document.getElementById('prix_unitaire_input');
             
             if (selectedOption.value) {
                 // Fill price automatically when article is selected
                 prixUnitaireInput.value = selectedOption.dataset.price;
                 
-                // Clear manual designation input
+                // Clear manual designation and category inputs
                 designationInput.value = '';
+                categorieInput.value = '';
             }
         });
 
@@ -182,6 +197,7 @@
         document.getElementById('add_article_btn').addEventListener('click', function() {
             const select = document.getElementById('article_select');
             const designationInput = document.getElementById('designation_input');
+            const categorieInput = document.getElementById('categorie_input');
             const quantiteInput = document.getElementById('quantite_input');
             const prixUnitaireInput = document.getElementById('prix_unitaire_input');
             const selectedOption = select.options[select.selectedIndex];
@@ -194,6 +210,7 @@
                 article = {
                     id: selectedOption.value,
                     designation: selectedOption.dataset.name,
+                    categorie: selectedOption.dataset.categorie,
                     prix_unitaire: parseFloat(selectedOption.dataset.price),
                     quantite: parseFloat(quantiteInput.value),
                 };
@@ -202,6 +219,7 @@
                 article = {
                     id: null, // No ID for manual articles
                     designation: designationInput.value,
+                    categorie: categorieInput.value || 'Non catégorisé',
                     prix_unitaire: parseFloat(prixUnitaireInput.value),
                     quantite: parseFloat(quantiteInput.value),
                 };
@@ -218,6 +236,7 @@
             // Reset inputs
             select.value = '';
             designationInput.value = '';
+            categorieInput.value = '';
             prixUnitaireInput.value = '';
             quantiteInput.value = '1';
         });
@@ -238,6 +257,11 @@
                 row.className = 'border-b border-[#E5E7EB] hover:bg-[#F9FAFB]';
                 row.innerHTML = `
                     <td class="px-4 py-3 text-[#374151]">${article.designation}</td>
+                    <td class="px-4 py-3 text-[#374151]">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#E0EDF8] text-[#1860E1]">
+                            ${article.categorie || 'Non catégorisé'}
+                        </span>
+                    </td>
                     <td class="px-4 py-3 text-right text-[#374151]">${parseFloat(article.quantite).toFixed(2)}</td>
                     <td class="px-4 py-3 text-right text-[#374151]">${parseFloat(article.prix_unitaire).toFixed(2)}</td>
                     <td class="px-4 py-3 text-right text-[#374151] font-medium">${parseFloat(article.total_ht).toFixed(2)}</td>

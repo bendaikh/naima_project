@@ -26,7 +26,7 @@ class FactureController extends Controller
     public function create(Request $request): View
     {
         $clients = Client::orderBy('nom_raison_sociale')->get();
-        $articles = Article::orderBy('nom')->get();
+        $articles = Article::with('categorie')->orderBy('nom')->get();
         $devisId = $request->get('devis_id');
         $devis = $devisId ? Devis::with('client', 'lignes')->find($devisId) : null;
         return view('factures.create', ['facture' => new Facture, 'clients' => $clients, 'articles' => $articles, 'devis' => $devis]);
@@ -80,6 +80,7 @@ class FactureController extends Controller
             FactureLigne::create([
                 'facture_id' => $facture->id,
                 'designation' => $article['designation'],
+                'categorie' => $article['categorie'] ?? null,
                 'quantite' => floatval($article['quantite']),
                 'prix_unitaire' => floatval($article['prix_unitaire']),
                 'tva' => $validated['tva'],

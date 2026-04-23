@@ -59,9 +59,10 @@
     <table class="items">
         <thead>
             <tr>
-                <th style="width: 50%;">Désignation</th>
+                <th style="width: 40%;">Désignation</th>
+                <th class="center" style="width: 12%;">Catégorie</th>
                 <th class="center" style="width: 10%;">TVA</th>
-                <th class="num" style="width: 14%;">P.U. HT</th>
+                <th class="num" style="width: 12%;">P.U. HT</th>
                 <th class="num" style="width: 8%;">Qté</th>
                 <th class="num" style="width: 18%;">Total HT</th>
             </tr>
@@ -70,15 +71,16 @@
             @forelse($facture->lignes as $ligne)
                 <tr>
                     <td>{{ $ligne->designation }}</td>
+                    <td class="center">{{ $ligne->categorie ?? '—' }}</td>
                     <td class="center">{{ rtrim(rtrim(number_format((float) ($ligne->tva ?? $facture->tva ?? 20), 2, ',', ' '), '0'), ',') }}%</td>
                     <td class="num">{{ number_format((float) $ligne->prix_unitaire, 2, ',', ' ') }}</td>
                     <td class="num">{{ rtrim(rtrim(number_format((float) $ligne->quantite, 2, ',', ' '), '0'), ',') }}</td>
                     <td class="num">{{ number_format((float) $ligne->total_ht, 2, ',', ' ') }}</td>
                 </tr>
             @empty
-                <tr><td colspan="5" style="text-align:center; font-style:italic;">Aucun article</td></tr>
+                <tr><td colspan="6" style="text-align:center; font-style:italic;">Aucun article</td></tr>
             @endforelse
-            <tr class="spacer"><td colspan="5">&nbsp;</td></tr>
+            <tr class="spacer"><td colspan="6">&nbsp;</td></tr>
         </tbody>
     </table>
 
