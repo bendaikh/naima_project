@@ -19,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Share company parameters with all views
+        view()->composer('*', function ($view) {
+            $companyParams = \App\Models\ParametresEntreprise::get();
+            $view->with('companyParams', $companyParams);
+        });
     }
 }

@@ -20,7 +20,7 @@
                     <span class="text-xl font-bold">G</span>
                 </div>
                 <div>
-                    <span class="text-lg font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">{{ config('app.name') }}</span>
+                    <span class="text-lg font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">{{ $companyParams->nom ?? config('app.name') }}</span>
                     <p class="text-xs text-slate-400 font-medium">ERP SaaS Business</p>
                 </div>
             </div>
@@ -205,6 +205,18 @@
                             <span class="tracking-wide">Paramètres</span>
                         </a>
                     </li>
+
+                    {{-- Gestion Utilisateur (Superadmin only) --}}
+                    @if(auth()->user()->isSuperAdmin())
+                        <li>
+                            <a href="{{ route('users.index') }}" class="flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 {{ request()->routeIs('users.*') ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg {{ request()->routeIs('users.*') ? 'bg-gradient-to-br from-purple-400 to-pink-500' : 'bg-slate-700' }}">
+                                    <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                                </div>
+                                <span class="tracking-wide">Gestion Utilisateur</span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </nav>
         </aside>

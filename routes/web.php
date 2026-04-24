@@ -19,6 +19,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
+    // User Management (Superadmin only)
+    Route::resource('users', \App\Http\Controllers\UserController::class)->only(['index', 'create', 'store', 'destroy']);
+
     // Existing resources
     Route::resource('clients', \App\Http\Controllers\ClientController::class);
     Route::resource('fournisseurs', \App\Http\Controllers\FournisseurController::class)->except(['show']);
