@@ -56,6 +56,34 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Utilisateur créé avec succès.');
     }
 
+    public function edit(User $user): View
+    {
+        $this->checkSuperAdmin();
+        return view('users.edit', compact('user'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $this->checkSuperAdmin();
+        
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8|confirmed',
+            'role' => 'required|in:user,superadmin',
+        ]);
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+        
+        $user->update($validated);
+        
+        return redirect()->route('users.index')->with('success', 'Utilisateur modifié avec succès.');
+    }
+
     public function destroy(User $user)
     {
         $this->checkSuperAdmin();

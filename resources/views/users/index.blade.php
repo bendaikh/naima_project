@@ -44,6 +44,9 @@
                             </td>
                             <td class="px-6 py-4 text-right text-sm">
                                 <div class="flex justify-end gap-2">
+                                    <a href="{{ route('users.edit', $user) }}" class="inline-flex items-center justify-center rounded-lg bg-[#1860E1] w-8 h-8 text-white hover:bg-[#1557C7] transition-colors" title="Modifier">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                    </a>
                                     @if($user->id !== auth()->id())
                                         <form method="post" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Supprimer cet utilisateur ?');" style="display: inline;">
                                             @csrf

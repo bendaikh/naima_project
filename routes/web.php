@@ -20,7 +20,7 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
 
     // User Management (Superadmin only)
-    Route::resource('users', \App\Http\Controllers\UserController::class)->only(['index', 'create', 'store', 'destroy']);
+    Route::resource('users', \App\Http\Controllers\UserController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
     // Existing resources
     Route::resource('clients', \App\Http\Controllers\ClientController::class);
