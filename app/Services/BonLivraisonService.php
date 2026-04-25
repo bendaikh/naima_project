@@ -173,6 +173,7 @@ class BonLivraisonService
             $bonLivraison->lignes()->create([
                 'article_id' => $article?->id,
                 'designation' => $ligne['designation'],
+                'reference' => $ligne['reference'] ?? $article?->ugs,
                 'quantite' => $ligne['quantite'],
             ]);
         }

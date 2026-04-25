@@ -44,7 +44,8 @@
         <thead>
             <tr>
                 <th class="center" style="width: 10%;">N°</th>
-                <th style="width: 70%;">Désignation</th>
+                <th style="width: 15%;">Référence</th>
+                <th style="width: 55%;">Désignation</th>
                 <th class="num" style="width: 20%;">Quantité</th>
             </tr>
         </thead>
@@ -52,13 +53,14 @@
             @forelse($bonLivraison->lignes as $index => $ligne)
                 <tr>
                     <td class="center">{{ $index + 1 }}</td>
+                    <td>{{ $ligne->reference ?? '—' }}</td>
                     <td>{{ $ligne->designation }}</td>
                     <td class="num">{{ rtrim(rtrim(number_format((float) $ligne->quantite, 2, ',', ' '), '0'), ',') }}</td>
                 </tr>
             @empty
-                <tr><td colspan="3" style="text-align:center; font-style:italic;">Aucun article</td></tr>
+                <tr><td colspan="4" style="text-align:center; font-style:italic;">Aucun article</td></tr>
             @endforelse
-            <tr class="spacer"><td colspan="3">&nbsp;</td></tr>
+            <tr class="spacer"><td colspan="4">&nbsp;</td></tr>
         </tbody>
     </table>
 

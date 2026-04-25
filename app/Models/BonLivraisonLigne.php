@@ -13,6 +13,7 @@ class BonLivraisonLigne extends Model
         'bon_livraison_id',
         'article_id',
         'designation',
+        'reference',
         'quantite',
     ];
 

@@ -61,12 +61,17 @@ class BonLivraisonController extends Controller
             ? []
             : Article::whereIn('nom', $designations)->pluck('image', 'nom')->toArray();
 
+        $articleReferencesByName = $designations->isEmpty()
+            ? []
+            : Article::whereIn('nom', $designations)->pluck('ugs', 'nom')->toArray();
+
         return view('bon-livraison.create', [
             'bonLivraison' => new BonLivraison,
             'clients' => $clients,
             'devisList' => $devisList,
             'selectedClientId' => $clientId,
             'articleImagesByName' => $articleImagesByName,
+            'articleReferencesByName' => $articleReferencesByName,
         ]);
     }
 
@@ -78,6 +83,7 @@ class BonLivraisonController extends Controller
             'date' => 'required|date',
             'lignes' => 'required|array',
             'lignes.*.designation' => 'required|string',
+            'lignes.*.reference' => 'nullable|string',
             'lignes.*.quantite' => 'required|numeric|min:0.01',
         ]);
 
@@ -114,6 +120,7 @@ class BonLivraisonController extends Controller
                     'id' => $article->id,
                     'image' => $article->image,
                     'stock' => $article->quantite_stock,
+                    'reference' => $article->ugs,
                 ],
             ])
             ->toArray();
@@ -130,6 +137,7 @@ class BonLivraisonController extends Controller
             'statut' => 'required|in:en_attente,livre,validé,annule',
             'lignes' => 'required|array',
             'lignes.*.designation' => 'required|string',
+            'lignes.*.reference' => 'nullable|string',
             'lignes.*.quantite' => 'required|numeric|min:0.01',
         ]);
 
@@ -148,6 +156,7 @@ class BonLivraisonController extends Controller
                 'bon_livraison_id' => $bonLivraison->id,
                 'article_id' => $article?->id,
                 'designation' => $ligne['designation'],
+                'reference' => $ligne['reference'] ?? $article?->ugs,
                 'quantite' => $ligne['quantite'],
             ]);
         }

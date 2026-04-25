@@ -77,14 +77,15 @@
         }
 
         // Store devis data
-        const devisData = {!! json_encode($devisList->keyBy('id')->map(function($d) use ($articleImagesByName) { 
+        const devisData = {!! json_encode($devisList->keyBy('id')->map(function($d) use ($articleImagesByName, $articleReferencesByName) { 
             return [
                 'numero' => $d->numero,
                 'signature_image' => $d->signature_image,
-                'lignes' => $d->lignes->map(function($l) use ($articleImagesByName) {
+                'lignes' => $d->lignes->map(function($l) use ($articleImagesByName, $articleReferencesByName) {
                     return [
                         'id' => $l->id,
                         'designation' => $l->designation,
+                        'reference' => $articleReferencesByName[$l->designation] ?? '',
                         'quantite' => $l->quantite,
                         'article_id' => $l->article_id,
                         'image' => $articleImagesByName[$l->designation] ?? null
@@ -141,11 +142,15 @@
                         ${imageHtml}
                     </div>
                 </div>
-                <div class="col-span-5">
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Référence</label>
+                    <input type="text" name="lignes[${index}][reference]" value="${ligne?.reference || ''}" class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div class="col-span-4">
                     <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                     <input type="text" name="lignes[${index}][designation]" value="${ligne?.designation || ''}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 </div>
-                <div class="col-span-3">
+                <div class="col-span-2">
                     <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                     <input type="number" step="1" name="lignes[${index}][quantite]" value="${ligne?.quantite || ''}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 </div>
@@ -164,11 +169,15 @@
                     <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
                     <div class="bg-gray-200 w-full h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>
                 </div>
-                <div class="col-span-5">
+                <div class="col-span-2">
+                    <label class="block text-sm font-medium text-[#374151] mb-2">Référence</label>
+                    <input type="text" name="lignes[${index}][reference]" placeholder="Réf." class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                </div>
+                <div class="col-span-4">
                     <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                     <input type="text" name="lignes[${index}][designation]" placeholder="Nom du produit" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 </div>
-                <div class="col-span-3">
+                <div class="col-span-2">
                     <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                     <input type="number" step="1" name="lignes[${index}][quantite]" placeholder="0" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                 </div>
@@ -200,11 +209,15 @@
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
                                     <div class="bg-gray-200 w-full h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>
                                 </div>
-                                <div class="col-span-5">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-[#374151] mb-2">Référence</label>
+                                    <input type="text" name="lignes[{{ $i }}][reference]" value="{{ $ligne['reference'] ?? '' }}" class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                                </div>
+                                <div class="col-span-4">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                                     <input type="text" name="lignes[{{ $i }}][designation]" value="{{ $ligne['designation'] }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
-                                <div class="col-span-3">
+                                <div class="col-span-2">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                                     <input type="number" step="1" name="lignes[{{ $i }}][quantite]" value="{{ $ligne['quantite'] }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
@@ -222,6 +235,7 @@
                                 $imageHtml = $imagePath
                                     ? "<img src='/storage/{$imagePath}' alt='{$ligne->designation}' style='max-width: 60px; max-height: 60px; object-fit: cover; border-radius: 4px;'>"
                                     : '<div class="bg-gray-200 w-16 h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>';
+                                $articleReference = $articleReferencesByName[$ligne->designation] ?? '';
                             @endphp
                             <div class="ligne-item grid grid-cols-12 gap-4 p-4 border border-[#E5E7EB] rounded-lg bg-[#F9FAFB]">
                                 <div class="col-span-2">
@@ -230,11 +244,15 @@
                                         {!! $imageHtml !!}
                                     </div>
                                 </div>
-                                <div class="col-span-5">
+                                <div class="col-span-2">
+                                    <label class="block text-sm font-medium text-[#374151] mb-2">Référence</label>
+                                    <input type="text" name="lignes[{{ $ligneIndex }}][reference]" value="{{ $articleReference }}" class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                                </div>
+                                <div class="col-span-4">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                                     <input type="text" name="lignes[{{ $ligneIndex }}][designation]" value="{{ $ligne->designation }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
-                                <div class="col-span-3">
+                                <div class="col-span-2">
                                     <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                                     <input type="number" step="1" name="lignes[{{ $ligneIndex }}][quantite]" value="{{ $ligne->quantite }}" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 </div>
@@ -250,11 +268,15 @@
                                 <label class="block text-sm font-medium text-[#374151] mb-2">Image</label>
                                 <div class="bg-gray-200 w-full h-16 rounded flex items-center justify-center text-gray-400 text-xs">Pas image</div>
                             </div>
-                            <div class="col-span-5">
+                            <div class="col-span-2">
+                                <label class="block text-sm font-medium text-[#374151] mb-2">Référence</label>
+                                <input type="text" name="lignes[0][reference]" placeholder="Réf." class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                            </div>
+                            <div class="col-span-4">
                                 <label class="block text-sm font-medium text-[#374151] mb-2">Désignation *</label>
                                 <input type="text" name="lignes[0][designation]" placeholder="Nom du produit" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                             </div>
-                            <div class="col-span-3">
+                            <div class="col-span-2">
                                 <label class="block text-sm font-medium text-[#374151] mb-2">Quantité *</label>
                                 <input type="number" step="1" name="lignes[0][quantite]" placeholder="0" required class="w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                             </div>

@@ -68,6 +68,7 @@
                     <table class="w-full text-sm">
                         <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                             <tr>
+                                <th class="px-4 py-3 text-left font-medium text-[#374151]">Référence</th>
                                 <th class="px-4 py-3 text-left font-medium text-[#374151]">Désignation</th>
                                 <th class="px-4 py-3 text-right font-medium text-[#374151]">Quantité</th>
                             </tr>
@@ -75,6 +76,7 @@
                         <tbody>
                             @foreach($bonLivraison->lignes as $ligne)
                                 <tr class="border-b border-[#E5E7EB] hover:bg-[#F9FAFB]">
+                                    <td class="px-4 py-3 text-[#6B7280]">{{ $ligne->reference ?? '—' }}</td>
                                     <td class="px-4 py-3 text-[#374151]">{{ $ligne->designation }}</td>
                                     <td class="px-4 py-3 text-right text-[#374151]">{{ number_format($ligne->quantite, 2) }}</td>
                                 </tr>
