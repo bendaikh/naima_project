@@ -37,7 +37,16 @@ class DevisController extends Controller
     {
         $clients = Client::orderBy('nom_raison_sociale')->get();
         $articles = Article::orderBy('nom')->get();
-        return view('devis.create', ['devis' => new Devis, 'clients' => $clients, 'articles' => $articles]);
+        
+        // Map articles with their references for JavaScript access
+        $articleReferences = $articles->pluck('ugs', 'nom')->toArray();
+        
+        return view('devis.create', [
+            'devis' => new Devis, 
+            'clients' => $clients, 
+            'articles' => $articles,
+            'articleReferences' => $articleReferences
+        ]);
     }
 
     public function store(Request $request)
@@ -92,6 +101,7 @@ class DevisController extends Controller
             DevisLigne::create([
                 'devis_id' => $devis->id,
                 'designation' => $article['designation'],
+                'reference' => $article['reference'] ?? null,
                 'quantite' => floatval($article['quantite']),
                 'prix_unitaire' => floatval($article['prix_unitaire']),
                 'tva' => $validated['tva'],
@@ -175,6 +185,7 @@ class DevisController extends Controller
                 DevisLigne::create([
                     'devis_id' => $devis->id,
                     'designation' => $article['designation'] ?? '',
+                    'reference' => $article['reference'] ?? null,
                     'quantite' => floatval($article['quantite'] ?? 0),
                     'prix_unitaire' => floatval($article['prix_unitaire'] ?? 0),
                     'tva' => $updateData['tva'] ?? 0,

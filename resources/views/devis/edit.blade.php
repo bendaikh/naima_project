@@ -10,10 +10,14 @@
         $articleIds = $articles->mapWithKeys(function ($article) {
             return [$article->nom => $article->id];
         })->toArray();
-        $initialArticles = $devis->lignes->map(function ($ligne) use ($articleImages, $articleIds) {
+        $articleReferences = $articles->mapWithKeys(function ($article) {
+            return [$article->nom => $article->ugs ?? ''];
+        })->toArray();
+        $initialArticles = $devis->lignes->map(function ($ligne) use ($articleImages, $articleIds, $articleReferences) {
             return [
                 'id' => $articleIds[$ligne->designation] ?? null,
                 'designation' => $ligne->designation,
+                'reference' => $ligne->reference ?? ($articleReferences[$ligne->designation] ?? ''),
                 'prix_unitaire' => $ligne->prix_unitaire,
                 'quantite' => $ligne->quantite,
                 'image' => $articleImages[$ligne->designation] ?? '',
@@ -108,7 +112,7 @@
                             <select id="article_select" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                                 <option value="">-- Choisir un article --</option>
                                 @foreach($articles as $article)
-                                    <option value="{{ $article->id }}" data-name="{{ $article->nom }}" data-price="{{ $article->prix_vente }}" data-image="{{ $article->image ? asset('storage/' . $article->image) : '' }}">
+                                    <option value="{{ $article->id }}" data-name="{{ $article->nom }}" data-price="{{ $article->prix_vente }}" data-image="{{ $article->image ? asset('storage/' . $article->image) : '' }}" data-reference="{{ $article->ugs ?? '' }}">
                                         {{ $article->nom }} ({{ $article->prix_vente }} DH)
                                     </option>
                                 @endforeach
@@ -122,7 +126,12 @@
                     </div>
                     
                     <!-- Row 2: Quantity and Price -->
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-4 gap-4">
+                        <div>
+                            <label for="reference_input" class="block text-sm font-medium text-[#374151]">Référence</label>
+                            <input type="text" id="reference_input" placeholder="Réf." class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
+                        </div>
+                        
                         <div>
                             <label for="quantite_input" class="block text-sm font-medium text-[#374151]">Quantité</label>
                             <input type="number" id="quantite_input" step="1" min="1" value="1" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
@@ -159,6 +168,7 @@
                         <thead class="bg-[#F9FAFB] border-b border-[#E5E7EB]">
                             <tr>
                                 <th class="px-4 py-2 text-center font-medium text-[#374151]" style="width: 60px;">Image</th>
+                                <th class="px-4 py-2 text-left font-medium text-[#374151]">Référence</th>
                                 <th class="px-4 py-2 text-left font-medium text-[#374151]">Désignation</th>
                                 <th class="px-4 py-2 text-right font-medium text-[#374151]">Quantité</th>
                                 <th class="px-4 py-2 text-right font-medium text-[#374151]">Prix unitaire</th>
@@ -221,10 +231,12 @@
             const preview = document.getElementById('article_preview');
             const designationInput = document.getElementById('designation_input');
             const prixUnitaireInput = document.getElementById('prix_unitaire_input');
+            const referenceInput = document.getElementById('reference_input');
 
             if (selectedOption.value) {
-                // Fill price automatically when article is selected
+                // Fill price and reference automatically when article is selected
                 prixUnitaireInput.value = selectedOption.dataset.price;
+                referenceInput.value = selectedOption.dataset.reference || '';
                 
                 // Clear manual designation input
                 designationInput.value = '';
@@ -255,6 +267,7 @@
         document.getElementById('add_article_btn').addEventListener('click', function() {
             const select = document.getElementById('article_select');
             const designationInput = document.getElementById('designation_input');
+            const referenceInput = document.getElementById('reference_input');
             const quantiteInput = document.getElementById('quantite_input');
             const prixUnitaireInput = document.getElementById('prix_unitaire_input');
             const selectedOption = select.options[select.selectedIndex];
@@ -267,6 +280,7 @@
                 article = {
                     id: selectedOption.value,
                     designation: selectedOption.dataset.name,
+                    reference: selectedOption.dataset.reference || '',
                     prix_unitaire: parseFloat(selectedOption.dataset.price),
                     quantite: parseFloat(quantiteInput.value),
                     image: selectedOption.dataset.image,
@@ -276,6 +290,7 @@
                 article = {
                     id: null, // No ID for manual articles
                     designation: designationInput.value,
+                    reference: referenceInput.value || '',
                     prix_unitaire: parseFloat(prixUnitaireInput.value),
                     quantite: parseFloat(quantiteInput.value),
                     image: null,
@@ -292,6 +307,7 @@
 
             select.value = '';
             designationInput.value = '';
+            referenceInput.value = '';
             prixUnitaireInput.value = '';
             quantiteInput.value = '1';
             document.getElementById('article_preview').classList.add('hidden');
@@ -317,6 +333,7 @@
 
                 row.innerHTML = `
                     <td class="px-4 py-3 text-center">${imageHtml}</td>
+                    <td class="px-4 py-3 text-[#6B7280] text-sm">${article.reference || '-'}</td>
                     <td class="px-4 py-3 text-[#374151]">${article.designation}</td>
                     <td class="px-4 py-3 text-right text-[#374151]">${parseFloat(article.quantite).toFixed(2)}</td>
                     <td class="px-4 py-3 text-right text-[#374151]">${parseFloat(article.prix_unitaire).toFixed(2)}</td>

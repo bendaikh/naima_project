@@ -12,6 +12,7 @@ class DevisLigne extends Model
     protected $fillable = [
         'devis_id',
         'designation',
+        'reference',
         'quantite',
         'prix_unitaire',
         'tva',
