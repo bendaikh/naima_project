@@ -206,6 +206,16 @@
                         </a>
                     </li>
 
+                    {{-- Historique --}}
+                    <li>
+                        <a href="{{ route('historique.index') }}" class="flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 {{ request()->routeIs('historique.*') ? 'bg-white/10 text-white shadow-lg backdrop-blur-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white' }}">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg {{ request()->routeIs('historique.*') ? 'bg-gradient-to-br from-amber-400 to-orange-500' : 'bg-slate-700' }}">
+                                <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <span class="tracking-wide">Historique</span>
+                        </a>
+                    </li>
+
                     {{-- Gestion Utilisateur (Superadmin only) --}}
                     @if(auth()->user()->isSuperAdmin())
                         <li>
