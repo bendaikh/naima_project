@@ -60,7 +60,7 @@
         <tbody>
             @forelse($bonDeCommande->lignes as $ligne)
                 <tr>
-                    <td>{{ $ligne->product_name ?? $ligne->article?->nom ?? 'N/A' }}</td>
+                    <td>{{ $ligne->designation ?? $ligne->article?->nom ?? 'N/A' }}</td>
                     <td class="center">{{ $tvaRate }}%</td>
                     <td class="num">{{ number_format((float) $ligne->purchase_price, 2, ',', ' ') }}</td>
                     <td class="num">{{ rtrim(rtrim(number_format((float) $ligne->quantity, 2, ',', ' '), '0'), ',') }}</td>

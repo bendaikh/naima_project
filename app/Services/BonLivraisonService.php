@@ -44,7 +44,7 @@ class BonLivraisonService
             'devis_id' => $devis->id,
             'facture_id' => $data['facture_id'] ?? null,
             'date' => $data['date'] ?? now()->toDateString(),
-            'statut' => 'brouillon', // Not validated yet
+            'statut' => 'en_attente', // Waiting for validation
         ]);
 
         // Create lines (without stock impact yet)
@@ -61,19 +61,29 @@ class BonLivraisonService
      */
     public function validate(BonLivraison $bonLivraison): void
     {
+        \Log::info('BonLivraisonService::validate called', [
+            'bon_id' => $bonLivraison->id,
+            'current_statut' => $bonLivraison->statut
+        ]);
+        
         // If already validated, do nothing
         if ($bonLivraison->statut === 'validé') {
+            \Log::info('Already validated, skipping', ['bon_id' => $bonLivraison->id]);
             return;
         }
 
         // Validate articles exist and have sufficient stock
+        \Log::info('Validating stock availability', ['bon_id' => $bonLivraison->id]);
         $this->validateStockAvailability($bonLivraison);
 
         // Mark as validated (signed)
+        \Log::info('Updating status to validé', ['bon_id' => $bonLivraison->id]);
         $bonLivraison->update(['statut' => 'validé']);
 
         // NOW: Record stock movements (decrement)
+        \Log::info('Decrementing stock', ['bon_id' => $bonLivraison->id]);
         $bonLivraison->decrementStock();
+        \Log::info('Validation complete', ['bon_id' => $bonLivraison->id]);
     }
 
     /**

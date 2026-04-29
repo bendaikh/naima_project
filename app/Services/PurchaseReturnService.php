@@ -179,7 +179,7 @@ class PurchaseReturnService
             $availableQuantity = $this->stockService->getAvailableReturnQuantity($bonDeCommandeLigne);
             
             if ($ligne['return_quantity'] > $availableQuantity) {
-                $errors[] = "Return quantity ({$ligne['return_quantity']}) exceeds available ({$availableQuantity}) for article {$bonDeCommandeLigne->product_name}.";
+                $errors[] = "Return quantity ({$ligne['return_quantity']}) exceeds available ({$availableQuantity}) for article {$bonDeCommandeLigne->designation}.";
             }
         }
 

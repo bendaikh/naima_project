@@ -142,9 +142,12 @@
                             <input type="number" id="prix_unitaire_input" step="0.01" min="0" placeholder="0.00" class="mt-1 w-full rounded-lg border border-[#E5E7EB] px-4 py-2 focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1]">
                         </div>
                         
-                        <div class="flex items-end">
-                            <button type="button" id="add_article_btn" class="w-full rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1557C7]">
-                                Ajouter
+                        <div class="flex items-end gap-2">
+                            <button type="button" id="add_article_btn" class="flex-1 rounded-lg bg-[#1860E1] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1557C7]">
+                                <span id="add_btn_text">Ajouter</span>
+                            </button>
+                            <button type="button" id="cancel_edit_btn" class="hidden rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-[#6B7280] hover:bg-[#F9FAFB]">
+                                Annuler
                             </button>
                         </div>
                     </div>
@@ -223,6 +226,7 @@
 
     <script>
         let articles = @json($initialArticles);
+        let editingIndex = null; // Track which article is being edited
 
         let tvaRate = parseFloat(document.getElementById('tva').value || '0') / 100;
 
@@ -302,7 +306,17 @@
 
             article.total_ht = (article.quantite * article.prix_unitaire).toFixed(2);
 
-            articles.push(article);
+            if (editingIndex !== null) {
+                // Update existing article
+                articles[editingIndex] = article;
+                editingIndex = null;
+                document.getElementById('add_btn_text').textContent = 'Ajouter';
+                document.getElementById('cancel_edit_btn').classList.add('hidden');
+            } else {
+                // Add new article
+                articles.push(article);
+            }
+            
             updateTable();
 
             select.value = '';
@@ -313,7 +327,77 @@
             document.getElementById('article_preview').classList.add('hidden');
         });
 
+        document.getElementById('cancel_edit_btn').addEventListener('click', function() {
+            editingIndex = null;
+            document.getElementById('add_btn_text').textContent = 'Ajouter';
+            document.getElementById('cancel_edit_btn').classList.add('hidden');
+            
+            // Clear all inputs
+            document.getElementById('article_select').value = '';
+            document.getElementById('designation_input').value = '';
+            document.getElementById('reference_input').value = '';
+            document.getElementById('prix_unitaire_input').value = '';
+            document.getElementById('quantite_input').value = '1';
+            document.getElementById('article_preview').classList.add('hidden');
+        });
+
+        function editArticle(index) {
+            const article = articles[index];
+            editingIndex = index;
+            
+            // Fill the form with article data
+            document.getElementById('designation_input').value = article.designation;
+            document.getElementById('reference_input').value = article.reference || '';
+            document.getElementById('quantite_input').value = article.quantite;
+            document.getElementById('prix_unitaire_input').value = article.prix_unitaire;
+            
+            // If article has an ID, try to select it in the dropdown
+            if (article.id) {
+                document.getElementById('article_select').value = article.id;
+                
+                // Show preview if article has image
+                if (article.image) {
+                    document.getElementById('preview_image').src = article.image;
+                    document.getElementById('preview_image').style.display = 'block';
+                    document.getElementById('preview_name').textContent = article.designation;
+                    document.getElementById('preview_price').textContent = article.prix_unitaire + ' DH';
+                    document.getElementById('article_preview').classList.remove('hidden');
+                }
+            } else {
+                document.getElementById('article_select').value = '';
+                document.getElementById('article_preview').classList.add('hidden');
+            }
+            
+            // Change button text and show cancel button
+            document.getElementById('add_btn_text').textContent = 'Mettre à jour';
+            document.getElementById('cancel_edit_btn').classList.remove('hidden');
+            
+            // Scroll to form
+            window.scrollTo({
+                top: document.getElementById('article_select').offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+
         function removeArticle(index) {
+            // If we're editing this article, cancel the edit
+            if (editingIndex === index) {
+                editingIndex = null;
+                document.getElementById('add_btn_text').textContent = 'Ajouter';
+                document.getElementById('cancel_edit_btn').classList.add('hidden');
+                
+                // Clear all inputs
+                document.getElementById('article_select').value = '';
+                document.getElementById('designation_input').value = '';
+                document.getElementById('reference_input').value = '';
+                document.getElementById('prix_unitaire_input').value = '';
+                document.getElementById('quantite_input').value = '1';
+                document.getElementById('article_preview').classList.add('hidden');
+            } else if (editingIndex !== null && editingIndex > index) {
+                // Adjust editing index if removing an article before the one being edited
+                editingIndex--;
+            }
+            
             articles.splice(index, 1);
             updateTable();
         }
@@ -339,7 +423,10 @@
                     <td class="px-4 py-3 text-right text-[#374151]">${parseFloat(article.prix_unitaire).toFixed(2)}</td>
                     <td class="px-4 py-3 text-right text-[#374151] font-medium">${parseFloat(article.total_ht).toFixed(2)}</td>
                     <td class="px-4 py-3 text-center">
-                        <button type="button" onclick="removeArticle(${index})" class="text-red-600 hover:text-red-800 text-sm font-medium">Supprimer</button>
+                        <div class="flex items-center justify-center gap-2">
+                            <button type="button" onclick="editArticle(${index})" class="text-blue-600 hover:text-blue-800 text-sm font-medium">Modifier</button>
+                            <button type="button" onclick="removeArticle(${index})" class="text-red-600 hover:text-red-800 text-sm font-medium">Supprimer</button>
+                        </div>
                     </td>
                 `;
                 tbody.appendChild(row);

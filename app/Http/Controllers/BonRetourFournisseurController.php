@@ -57,7 +57,7 @@ class BonRetourFournisseurController extends Controller
                 $imagePath = $ligne->article?->image ?? $ligne->image;
                 return [
                     'id' => $ligne->id,
-                    'product_name' => $ligne->product_name ?? $ligne->article->nom ?? 'Unknown',
+                    'designation' => $ligne->designation ?? $ligne->article->nom ?? 'Unknown',
                     'article_id' => $ligne->article_id,
                     'quantity_received' => $ligne->received_quantity,
                     'quantity_already_returned' => $ligne->getAlreadyReturnedQuantity(),

@@ -134,12 +134,12 @@ function loadBonDeCommandeData() {
                     <div class="grid gap-4 sm:grid-cols-7 items-end">
                         <div>
                             <label class="mb-1 block text-xs font-medium text-[#374151]">Produit</label>
-                            <input type="text" class="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm" readonly value="${ligne.product_name}">
+                            <input type="text" class="w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm" readonly value="${ligne.designation}">
                         </div>
                         <div>
                             <label class="mb-1 block text-xs font-medium text-[#374151]">Image</label>
                             ${ligne.image_url
-                                ? `<img src="${ligne.image_url}" alt="${ligne.product_name}" class="h-12 w-12 rounded-lg object-cover border border-[#E5E7EB]">`
+                                ? `<img src="${ligne.image_url}" alt="${ligne.designation}" class="h-12 w-12 rounded-lg object-cover border border-[#E5E7EB]">`
                                 : `<div class="h-12 w-12 rounded-lg bg-[#F3F4F6] flex items-center justify-center">
                                         <svg class="w-5 h-5 text-[#D1D5DB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>

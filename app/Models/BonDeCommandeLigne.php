@@ -12,7 +12,7 @@ class BonDeCommandeLigne extends Model
     protected $fillable = [
         'bon_de_commande_id',
         'article_id',
-        'product_name',
+        'designation',
         'categorie_id',
         'image',
         'quantity',

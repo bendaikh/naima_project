@@ -184,11 +184,23 @@ class BonLivraisonController extends Controller
      */
     public function validateBon(BonLivraison $bonLivraison, BonLivraisonService $service)
     {
+        \Log::info('validateBon called', [
+            'bon_id' => $bonLivraison->id,
+            'current_statut' => $bonLivraison->statut,
+            'numero' => $bonLivraison->numero
+        ]);
+        
         try {
             $service->validate($bonLivraison);
+            \Log::info('validate successful', ['bon_id' => $bonLivraison->id]);
             return redirect()->route('bon-livraison.show', $bonLivraison)
                 ->with('success', 'Bon de livraison validé et stock décrémenté.');
         } catch (\Exception $e) {
+            \Log::error('validate failed', [
+                'bon_id' => $bonLivraison->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->route('bon-livraison.show', $bonLivraison)
                 ->with('error', $e->getMessage());
         }

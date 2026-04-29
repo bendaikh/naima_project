@@ -127,7 +127,7 @@
                         @foreach($bonDeCommande->lignes as $ligne)
                             <tr class="hover:bg-[#F9FAFB]">
                                 <td class="px-4 py-3 text-sm text-[#1F2937]">
-                                    {{ $ligne->product_name ?? $ligne->article?->nom ?? 'N/A' }}
+                                    {{ $ligne->designation ?? $ligne->article?->nom ?? 'N/A' }}
                                 </td>
                                 <td class="px-4 py-3 text-sm text-[#6B7280]">{{ number_format($ligne->quantity, 2) }}</td>
                                 <td class="px-4 py-3 text-sm text-[#6B7280]">{{ number_format($ligne->purchase_price, 2) }} DH</td>

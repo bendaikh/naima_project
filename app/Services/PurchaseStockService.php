@@ -26,7 +26,7 @@ class PurchaseStockService
             // If article doesn't exist, create it
             if (!$article) {
                 $article = Article::create([
-                    'nom' => $ligne->product_name,
+                    'nom' => $ligne->designation,
                     'description' => 'Created from purchase order',
                     'prix_achat' => $ligne->purchase_price,
                     'prix_vente' => $ligne->purchase_price * 1.5, // Default markup

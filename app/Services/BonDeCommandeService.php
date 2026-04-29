@@ -69,7 +69,7 @@ class BonDeCommandeService
         $data = [
             'bon_de_commande_id' => $bonDeCommande->id,
             'article_id' => $ligneData['article_id'] ?? null,
-            'product_name' => $ligneData['product_name'] ?? null,
+            'designation' => $ligneData['designation'] ?? null,
             'image' => $imagePath,
             'quantity' => $ligneData['quantity'],
             'purchase_price' => $ligneData['purchase_price'],
@@ -223,8 +223,8 @@ class BonDeCommandeService
         }
 
         foreach ($data['lignes'] as $ligne) {
-            if (empty($ligne['article_id']) && empty($ligne['product_name'])) {
-                $errors[] = 'Each line must have either an article or product name.';
+            if (empty($ligne['article_id']) && empty($ligne['designation'])) {
+                $errors[] = 'Each line must have either an article or designation.';
             }
 
             if (empty($ligne['quantity']) || $ligne['quantity'] <= 0) {

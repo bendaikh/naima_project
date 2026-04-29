@@ -129,8 +129,8 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-xs font-medium text-[#374151] mb-1">OU Saisir manuellement le nom du produit</label>
-                                    <input type="text" name="lignes[0][product_name]" placeholder="Ex: Nouveau Produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
+                                    <label class="block text-xs font-medium text-[#374151] mb-1">OU Saisir manuellement la désignation</label>
+                                    <input type="text" name="lignes[0][designation]" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] designation-input">
                                 </div>
                             </div>
 
@@ -261,8 +261,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             </div>
 
                             <div>
-                                <label class="block text-xs font-medium text-[#374151] mb-1">OU Saisir manuellement le nom du produit</label>
-                                <input type="text" name="lignes[${ligneIndex}][product_name]" placeholder="Ex: Nouveau Produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
+                                <label class="block text-xs font-medium text-[#374151] mb-1">OU Saisir manuellement la désignation</label>
+                                <input type="text" name="lignes[${ligneIndex}][designation]" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] designation-input">
                             </div>
                         </div>
 
@@ -318,7 +318,7 @@ function attachLigneListeners(ligneElement) {
     const fileInput = ligneElement.querySelector('.image-file-input');
     const imageDiv = ligneElement.querySelector('.article-image');
     const articleSelect = ligneElement.querySelector('.article-select');
-    const productNameInput = ligneElement.querySelector('.product-name-input');
+    const designationInput = ligneElement.querySelector('.designation-input');
     const categorieSelect = ligneElement.querySelector('.categorie-select');
     const quantityInput = ligneElement.querySelector('.quantity-input');
     const priceInput = ligneElement.querySelector('.price-input');
@@ -331,12 +331,12 @@ function attachLigneListeners(ligneElement) {
     // Clear manual input when article is selected
     articleSelect.addEventListener('change', function() {
         if (this.value) {
-            productNameInput.value = '';
+            designationInput.value = '';
         }
     });
 
     // Clear article selection when manual input is entered
-    productNameInput.addEventListener('input', function() {
+    designationInput.addEventListener('input', function() {
         if (this.value) {
             articleSelect.value = '';
         }

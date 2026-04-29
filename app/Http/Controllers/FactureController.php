@@ -108,7 +108,8 @@ class FactureController extends Controller
     {
         $facture->load('lignes');
         $clients = Client::orderBy('nom_raison_sociale')->get();
-        return view('factures.edit', compact('facture', 'clients'));
+        $articles = Article::orderBy('nom')->get();
+        return view('factures.edit', compact('facture', 'clients', 'articles'));
     }
 
     public function update(Request $request, Facture $facture)
@@ -118,16 +119,60 @@ class FactureController extends Controller
             'client_id' => 'required|exists:clients,id',
             'date' => 'required|date',
             'date_echeance' => 'nullable|date',
+            'tva' => 'nullable|numeric|min:0|max:100',
             'statut' => 'required|in:payee,non_payee,partiellement_payee',
             'montant_paye' => 'nullable|numeric|min:0',
+            'articles_data' => 'nullable|json',
         ]);
-        if (array_key_exists('montant_paye', $validated)) {
-            $facture->montant_paye = $validated['montant_paye'];
-            $facture->statut = $validated['montant_paye'] >= $facture->total_ttc ? 'payee' : ($validated['montant_paye'] > 0 ? 'partiellement_payee' : 'non_payee');
-        } else {
-            $facture->statut = $validated['statut'];
+
+        $articlesData = [];
+        $hasArticlesData = $request->has('articles_data');
+        if ($validated['articles_data'] ?? null) {
+            $articlesData = json_decode($validated['articles_data'], true) ?? [];
         }
-        $facture->fill(collect($validated)->except('montant_paye')->toArray())->save();
+
+        $updateData = $validated;
+        unset($updateData['articles_data']);
+
+        if (!array_key_exists('tva', $updateData) || $updateData['tva'] === null) {
+            $updateData['tva'] = $facture->tva;
+        }
+
+        if ($hasArticlesData) {
+            $totalHt = 0;
+            foreach ($articlesData as $article) {
+                $totalHt += floatval($article['total_ht'] ?? 0);
+            }
+            $updateData['total_ht'] = $totalHt;
+            $tvaRate = ($updateData['tva'] ?? 0) / 100;
+            $totalTva = $totalHt * $tvaRate;
+            $updateData['total_ttc'] = $totalHt + $totalTva;
+        }
+
+        // Handle payment status based on montant_paye
+        if (array_key_exists('montant_paye', $updateData)) {
+            $montantPaye = floatval($updateData['montant_paye']);
+            $totalTtc = $updateData['total_ttc'] ?? $facture->total_ttc;
+            $updateData['statut'] = $montantPaye >= $totalTtc ? 'payee' : ($montantPaye > 0 ? 'partiellement_payee' : 'non_payee');
+        }
+
+        $facture->update($updateData);
+
+        if ($hasArticlesData) {
+            $facture->lignes()->delete();
+            foreach ($articlesData as $article) {
+                FactureLigne::create([
+                    'facture_id' => $facture->id,
+                    'designation' => $article['designation'] ?? '',
+                    'categorie' => $article['categorie'] ?? null,
+                    'quantite' => floatval($article['quantite'] ?? 0),
+                    'prix_unitaire' => floatval($article['prix_unitaire'] ?? 0),
+                    'tva' => $updateData['tva'] ?? 0,
+                    'total_ht' => floatval($article['total_ht'] ?? 0),
+                ]);
+            }
+        }
+
         return redirect()->route('factures.show', $facture)->with('success', 'Facture mise à jour.');
     }
 

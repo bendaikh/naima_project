@@ -34,6 +34,12 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="rounded-lg bg-[#FFEBEE] p-4 text-sm text-[#C62828] border-l-4 border-[#F44336]">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Main Info Cards -->
         <div class="grid grid-cols-3 gap-4">
             <div class="rounded-lg border border-[#E5E7EB] bg-white p-4 shadow-sm">

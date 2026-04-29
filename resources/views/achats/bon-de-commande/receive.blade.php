@@ -54,12 +54,12 @@
                     @foreach($bonDeCommande->lignes as $ligne)
                         <tr class="hover:bg-[#F9FAFB]">
                             <td class="px-4 py-3 text-sm text-[#1F2937]">
-                                {{ $ligne->product_name ?? $ligne->article?->nom ?? 'N/A' }}
+                                {{ $ligne->designation ?? $ligne->article?->nom ?? 'N/A' }}
                             </td>
                             <td class="px-4 py-3">
                                 @php($imagePath = $ligne->image ?? $ligne->article?->image)
                                 @if($imagePath)
-                                    <img src="{{ asset('storage/' . $imagePath) }}" alt="{{ $ligne->product_name ?? $ligne->article?->nom ?? 'Produit' }}" class="h-10 w-10 rounded-lg object-cover border border-[#E5E7EB]">
+                                    <img src="{{ asset('storage/' . $imagePath) }}" alt="{{ $ligne->designation ?? $ligne->article?->nom ?? 'Produit' }}" class="h-10 w-10 rounded-lg object-cover border border-[#E5E7EB]">
                                 @else
                                     <div class="h-10 w-10 rounded-lg bg-[#F3F4F6] flex items-center justify-center">
                                         <svg class="w-5 h-5 text-[#D1D5DB]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

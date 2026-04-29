@@ -88,8 +88,8 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="mb-1 block text-xs font-medium text-[#374151]">OU Saisir manuellement le nom du produit</label>
-                                    <input type="text" name="lignes[{{ $index }}][product_name]" value="{{ old('lignes.' . $index . '.product_name', $ligne->product_name) }}" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
+                                    <label class="mb-1 block text-xs font-medium text-[#374151]">OU Saisir manuellement la désignation</label>
+                                    <input type="text" name="lignes[{{ $index }}][designation]" value="{{ old('lignes.' . $index . '.designation', $ligne->designation) }}" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] designation-input">
                                 </div>
                             </div>
                             <div class="grid gap-4 sm:grid-cols-4">
@@ -160,8 +160,8 @@ document.getElementById('add-ligne').addEventListener('click', function() {
                     </select>
                 </div>
                 <div>
-                    <label class="mb-1 block text-xs font-medium text-[#374151]">OU Saisir manuellement le nom du produit</label>
-                    <input type="text" name="lignes[${ligneIndex}][product_name]" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] product-name-input">
+                    <label class="mb-1 block text-xs font-medium text-[#374151]">OU Saisir manuellement la désignation</label>
+                    <input type="text" name="lignes[${ligneIndex}][designation]" placeholder="Ex: Nouveau produit" class="w-full rounded-lg border border-[#E5E7EB] px-3 py-2 text-sm focus:border-[#1860E1] focus:ring-1 focus:ring-[#1860E1] designation-input">
                 </div>
             </div>
             <div class="grid gap-4 sm:grid-cols-4">
@@ -192,21 +192,21 @@ document.getElementById('add-ligne').addEventListener('click', function() {
 
 function attachLigneListeners(ligneElement) {
     const articleSelect = ligneElement.querySelector('.article-select');
-    const productNameInput = ligneElement.querySelector('.product-name-input');
+    const designationInput = ligneElement.querySelector('.designation-input');
     const quantityInput = ligneElement.querySelector('.quantity-input');
     const priceInput = ligneElement.querySelector('.price-input');
     const removeBtn = ligneElement.querySelector('.remove-ligne');
 
     // Clear manual input when article is selected
-    if (articleSelect && productNameInput) {
+    if (articleSelect && designationInput) {
         articleSelect.addEventListener('change', function() {
             if (this.value) {
-                productNameInput.value = '';
+                designationInput.value = '';
             }
         });
 
         // Clear article selection when manual input is entered
-        productNameInput.addEventListener('input', function() {
+        designationInput.addEventListener('input', function() {
             if (this.value) {
                 articleSelect.value = '';
             }
