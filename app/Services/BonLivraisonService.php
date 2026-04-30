@@ -118,6 +118,11 @@ class BonLivraisonService
     private function validateStockAvailability(BonLivraison $bonLivraison): void
     {
         foreach ($bonLivraison->lignes as $ligne) {
+            // Skip validation for manual articles (not in the articles table)
+            if (!$ligne->article_id) {
+                continue;
+            }
+
             // Find article by designation
             $article = \App\Models\Article::where('nom', $ligne->designation)->first();
 
